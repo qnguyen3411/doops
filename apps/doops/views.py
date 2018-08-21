@@ -1,6 +1,8 @@
 from django.shortcuts import render, HttpResponse, redirect
 from django.contrib import messages
-
+from django.views.decorators.csrf import csrf_exempt
+from django.core import serializers
+import json
 import bcrypt
 from .models import *
 # Create your views here.
@@ -9,11 +11,24 @@ def index(request):
         return redirect('/dashboard')
     return render(request, "doops/index.html")
 
-def canvas_page(request):
-    return render(request, "doops/canvas.html")
+def canvas_page(request, node_id=0):
+    data = {'isRoot' : True}
+    if node_id:
+        canv_list = CanvasNode.objects.filter(id=node_id)
+        if canv_list: 
+            data['isRoot'] = False
+            data['parent'] = canv_list[0]
+            print("ISNOTROOT!")
+        else:
+            data['isRoot'] = True;
+    
+    return render(request, "doops/canvas.html", data)
 
 def dashboard_page(request):
-    return render(request, "doops/dashboard.html")
+    data = {
+        'canvases' : CanvasNode.objects.order_by('-id')
+    }
+    return render(request, "doops/dashboard.html", data)
 
 def settings_page(request,id):
     return render(request, "doops/settings.html")
@@ -65,6 +80,25 @@ def login_process(request):
             messages.error(request, "Email/Password invalid", extra_tags='login')
     
     return redirect('/')
+
+def submit_process(request, node_id):
+    if request.method == 'POST' and 'id' in request.session:
+        parent = None
+
+        if node_id != 0:
+            parent_list = CanvasNode.objects.filter(id=node_id)
+            if parent_list:
+                parent = parent_list[0]
+    
+        CanvasNode.objects.create(
+            data_url = request.POST['data_url'],
+            poster = User.objects.get(id=request.session['id']),
+            parent = parent
+        )
+    return redirect('/')
+
+def get_nodes():
+    return HttpResponse("HEYBOI")
 
 def logout_process(request):
     request.session.clear()

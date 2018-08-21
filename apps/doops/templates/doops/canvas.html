@@ -28,6 +28,7 @@
             </div>
         </div>
     </h6>
+    
     <div id="maincontainer" class="border-0 card row ml-3 text-darkgreen bg-neutral mb-5">
         <p class="row mx-1 my-0 py-1">
             <a class="font-weight-bold  py-1 px-2 text-warm-dark ml-auto mr-3 d-inline-block" href="/dashboard">Go back </a>
@@ -35,7 +36,10 @@
         </p>
         <div class="card-header bg-transparent row ml-1 pb-1 pt-0">
             <div class="canvas-container">
-                <canvas id="botCanvas" width="600" height="400"></canvas>
+                <canvas id="botCanvas" width="600" height="400">
+                    
+                    <img id="start_img" src="{% if isRoot %}{% static "doops/imgs/white.png" %}{% else %}{{parent.data_url}}{% endif %}" alt="">
+                </canvas>
                 <canvas id="topCanvas" width="600" height="400" ></canvas>
             </div>
 
@@ -108,5 +112,8 @@
     </div>
     
     </div>
+    <form id="submit" action="/submit_process{% if isRoot %}/0{% else %}/{{parent.id}}{% endif %}" method="post">
+        {% csrf_token %}
+    </form>
 </body>
 </html>

@@ -25,7 +25,10 @@ $( document ).ready(function() {
     dot_flag = false;
     var overlay = document.getElementById('topCanvas');
     var ovl_ctx = overlay.getContext("2d")
-    
+    var start_img = document.getElementById('start_img')
+    ctx.drawImage(start_img, 0, 0, canvas.width, canvas.height)
+    ovl_ctx.drawImage(start_img, 0, 0, canvas.width, canvas.height)
+
     var pallete = document.getElementById('pallete');
     var pal_ctx = pallete.getContext("2d");
     var pal_img = document.getElementById('pallete_img')
@@ -292,22 +295,27 @@ $( document ).ready(function() {
             }
             h /= 6;
         }
-    
         return [Math.round(h * 360), Math.round(s * 100), Math.round(l * 100)];
     }
 
 
     $('#submit-button').click(function(){
-        // url = canvas.toDataURL()
-        // console.log(url)
-        // document.getElementById('test').innerHTML = "<img src='"+url+"'/>"
+        url = canvas.toDataURL()
+        console.log(url)
+        
+
+        
+        $('#submit').append('<input type="hidden" name="data_url" value="'+url+'">')
+        
+        $('#submit').submit();
+
     })
     
     //initialize page
     $('#sliders').hide()
     $('#curr-color').css('background-color', color)
-    ctx.fillStyle = "white";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    ovl_ctx.fillStyle = "white";
-    ovl_ctx.fillRect(0, 0, canvas.width, canvas.height);
+    // ctx.fillStyle = "white";
+    // ctx.fillRect(0, 0, canvas.width, canvas.height);
+    // ovl_ctx.fillStyle = "white";
+    // ovl_ctx.fillRect(0, 0, canvas.width, canvas.height);
 });

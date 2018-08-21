@@ -66,3 +66,15 @@ class User(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     objects = UserManager()
+
+
+class CanvasNode(models.Model):
+    data_url = models.TextField()
+    poster = models.ForeignKey(User, related_name="posted_canvases")
+    watched_user = models.ManyToManyField(User, related_name="watched_canvases")
+    parent = models.ForeignKey("self", related_name = "children",blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def isRoot(self):
+        return self.parent == None;

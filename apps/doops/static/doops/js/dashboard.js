@@ -14,7 +14,17 @@ $( document ).ready(function() {
     }
     $("i").one("click", handler1);
 
-
+    // $("timeline-control").click(function(){
+    //     $.ajax({
+    //         method : "POST",
+    //         url: "/get_nodes",
+    //         data: {
+    //             mode : $(this).attr('mode'),
+    //             mode : $(this).attr('mode'),
+    //         }
+    //     })
+    // })
     // $('#searchbox').hide()
+
 
 });
