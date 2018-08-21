@@ -1,0 +1,118 @@
+body{
+    box-shadow: inset 0 0 5rem rgba(0, 0, 0, .5);
+    background-color: rgb(48, 48, 38);
+    height:100%;
+}
+#botCanvas{
+    width: 600px;
+    height:400px;
+}
+#topCanvas{
+    opacity: 0;
+    position: absolute; top:39px; left:24px;
+    cursor: none;
+}
+#maincontainer{
+    width:730px;
+}
+
+#canvas-container{
+    min-width:620px;
+    cursor: none;
+}
+#settings{
+    min-width: 620px;
+}
+#tools{
+    min-width: 70px;
+    max-width: 620px;
+    height:400px;
+    border-top-right-radius: 5px;
+    border-bottom-right-radius: 5px;
+}
+.draw-cursor{
+    position: absolute;
+    z-index: 1;
+    width:1px;
+    height: 1px;
+    cursor: none;
+    pointer-events: none;
+    
+}
+.color-swatch{
+    display: inline-block;
+    width : 35px;
+    height: 35px;
+    border: 1px solid rgb(98, 117, 76);
+}
+
+.tool{
+    display: inline-block;
+    width : 45px;
+    height: 45px;
+    text-align: center;
+    font-size: 30px;
+    
+}
+.selected{
+    border: 2px solid rgb(175, 177, 167);
+    border-radius: 5px;
+}
+.tool-settings{
+    cursor: pointer;
+}
+
+a:hover{
+    color: rgb(177, 201, 71);
+    background-color: rgb(121, 124, 108);
+    text-decoration: none;
+    border-radius: 5px;
+}
+a{
+    transition:0.3s;
+}
+.nav {
+    height:43px;
+    font-size: 25px;
+    
+}
+
+.nav i:hover {
+    color: rgb(177, 201, 71);
+    cursor: pointer;
+}
+.nav a:hover{
+    color: rgb(177, 201, 71);
+    text-decoration: none;
+}
+.nav.nav-menu {
+    font-size: 13px;
+    transition: 0.5s;
+    width: 300px;
+    overflow: hidden;
+}
+
+.nav.nav-menu a{
+    transition: 0.3s;
+    display: inline-block;
+    overflow: hidden;
+    width: 0px;
+    height:20px;
+    
+}
+div.sticky:hover{background-color: rgb(96, 102, 67);}
+
+.text-neutral{
+    color: rgb(175, 177, 167)
+}
+.text-warm-dark{color: rgb(65, 60, 46)}
+.bg-dark-green{background-color: rgb(48, 48, 38)}
+.text-darkgreen{color: rgb(82, 104, 61)}
+.text-neutral{color:rgb(175, 177, 167) }
+
+
+.text-lightgreen{color: rgb(194, 221, 75);}
+.text-disabled{color: rgb(97, 102, 75)}
+.bg-neutral{background-color: rgb(165, 179, 169)}
+.bg-disabled{background-color: rgb(108, 110, 97)}
+.bg-darkgreen{background-color: rgb(95, 117, 94)}

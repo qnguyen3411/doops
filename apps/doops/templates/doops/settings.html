@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Page Title</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel=stylesheet href=https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css integrity=sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO crossorigin=anonymous>
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.2.0/css/all.css" integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ" crossorigin="anonymous">
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+    {% load static %}
+    <link rel="stylesheet" media="screen" href="{% static "doops/css/dashboard.css" %}" />
+    <script src="{% static "doops/js/settings.js" %}"></script>
+</head>
+<body class="pt-1">
+    
+    <h6 class="nav text-disabled col-12 mx-auto py-1" style="position: sticky; top: 0; z-index:4;">
+        <div class="col-12 col-md-8 mx-auto row">
+            <i class="fas fa-bars p-1 pt-0"></i>
+            <div id="nav-menu" class="nav nav-menu">
+                <div class="fixed pt-2 pl-3" style="width: 300px;">
+                <a class="text-disabled" href="/dashboard">Go back </a>  <a class="text-disabled" href=""> Log out</a>
+                </div>
+            </div>
+        </div>
+    </h6>
+    <!-- end nav -->
+    <div class="row p-0 mx-0 mt-2">
+        <div id="vertical_nav" class="card ml-auto px-0 bg-transparent border-0" style="width:120px">
+            <ul class="list-group text-warm-dark" style="position: sticky; top: 40px; z-index:4;">
+            <li class="rounded small mt-4 mb-2 text-lightgreen" >
+                Account settings
+            </li>
+            <li class="rounded small my-2 text-lightgreen" >
+                Timeline settings</li>
+            <li class="rounded small my-2 text-lightgreen" >
+                Customize</li>
+            </ul>
+        </div>
+        <div id="dashboard_window" class="card col-8 col-sm-9 col-lg-7 mr-auto bg-transparent text-dark px-0 border-0">
+            <div class="sticky card text-left bg-darkgreen mx-1" style="position: sticky; top: 40px; z-index:4;">
+                <h6 class="pl-3 py-2 bg-transparent text-warm-dark row mx-1 my-0">
+                    <p class="col-7 my-0 d-none d-md-block">
+                        <i class="fas fa-tree p-1 pt-0"></i>
+                        <span class="text-lightgreen">Jimmy69</span>'s account info</p>
+                </h6>
+            </div>
+            <div class="bg-transparent p-1 my-3 mx-2 rounded text-neutral row">
+                <p id="form-choice" class="col-12 small ml-auto my-0 text-right">
+                    <a class=" selected" href="#update_info">Update info</a> | 
+                    <a class="text-disabled" href="#change_pw">Change password</a> |
+                    <a class="text-disabled" href="#delete">Delete account</a>
+                </p>
+                <form id="update_info" action="register_process" method='post' class = "col-9 text-left small form-signin mt-3 ml-2">
+                    {% csrf_token %}
+                    {% if messages %}
+                    {% for message in messages %}
+                    <li class="text-danger mb-1">{{message}}</li>
+                    {% endfor %}
+                    {% endif %}
+                    <div class="form-group">
+                    <label for="email" >Email address:</label>
+                    <input type="email" name="email" class="form-control" >
+                    </div>
+                    <div class="form-group">
+                    <label for="first_name">Username:</label>
+                    <input type="text" class="form-control" name="username">
+                    </div>
+                    
+                    <input class="font-weight-bold bg-disabled text-neutral form-control my-2" type="submit" value="update">
+                </form>
+
+                <form id="change_pw" action="register_process" method='post' class = "col-9 text-left small form-signin mt-3 ml-2">
+                    {% csrf_token %}
+                    {% if messages %}
+                    {% for message in messages %}
+                    <li class="text-danger mb-1">{{message}}</li>
+                    {% endfor %}
+                    {% endif %}
+                    <div class="form-group">
+                    <label for="email" >Change password:</label>
+                    <input type="email" name="email" class="form-control" >
+                    </div>
+                    <div class="form-group">
+                    <label for="first_name">Confirm password:</label>
+                    <input type="text" class="form-control" name="username">
+                    </div>
+                    
+                    <input class="font-weight-bold bg-disabled text-neutral form-control my-2" type="submit" value="update password">
+                </form>
+
+                <form id="delete" action="register_process" method='post' class = "col-9 text-left small form-signin mt-3 ml-2">
+                    {% csrf_token %}
+                    {% if messages %}
+                    {% for message in messages %}
+                    <li class="text-danger mb-1">{{message}}</li>
+                    {% endfor %}
+                    {% endif %}
+                    <div class="form-group">
+                    <label for="email" >Type in password to delete:</label>
+                    <input type="email" name="email" class="form-control" >
+                    </div>
+                    
+                    <input class="font-weight-bold bg-disabled text-neutral form-control my-2" type="submit" value="Delete account">
+                </form>
+            </div>
+        <!-- end dashboard window -->
+        <div id="nav">
+
+        </div>
+    </div>
+</body>
+</html>

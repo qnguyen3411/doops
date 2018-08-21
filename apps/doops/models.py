@@ -1,3 +1,68 @@
 from django.db import models
+import re
+
+EMAIL_REGEX = re.compile(r'^[a-zA-Z0-9.+_-]+@[a-zA-Z0-9._-]+\.[a-zA-Z]+$')
 
 # Create your models here.
+class UserManager(models.Manager):
+    def clean_input(self, postData, form_login=False, form_register=False, form_edit=False):
+        if form_register:
+            cleanData = {
+                'username' : postData['username'].strip(),
+                'email' : postData['email'].strip().lower(),
+                'password' : postData['password'].strip(),
+                'confirm' : postData['confirm'].strip(),
+            }
+        elif form_login:
+            cleanData = {
+                'email' : postData['email'].strip().lower(),
+                'password' : postData['password'].strip(),
+            }
+        else:
+            cleanData = {
+                'username' : postData['first_name'].strip(),
+                'email' : postData['email'].strip().lower(),
+            }
+        return cleanData
+
+    def validate_name(self, postData, min_length=0):
+        errors = []
+        if len(postData['username']) < min_length:
+            errors.append({
+                'tag':'username',
+                'message': 'username must be at least '+str(min_length)+' characters.'})
+        return errors
+
+    def validate_email(self, postData, check_unique=True):
+        errors = []
+        if not EMAIL_REGEX.match(postData['email']):
+            errors.append({'tag':'email','message': 'Invalid email'})
+        elif check_unique:
+            user_list = User.objects.filter(email=postData['email'])
+            if user_list:
+                errors.append({'tag':'email','message': 'Email already in use'})
+        return errors
+    
+    def validate_password(self, postData, min_length=0, check_confirm=True):
+        errors = []
+        if len(postData['password']) < min_length:
+            errors.append({
+                'tag':'password',
+                'message': 'Password must be at least '+str(min_length)+' characters.'})
+        elif check_confirm and postData['password'] != postData['confirm']:
+            errors.append({
+                'tag':'password',
+                'message': 'Password must match password confirm.'})
+        return errors
+
+    
+
+
+class User(models.Model):
+    username = models.CharField(max_length=255)
+    email = models.CharField(max_length=255)
+    password_hash = models.CharField(max_length=255)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    objects = UserManager()

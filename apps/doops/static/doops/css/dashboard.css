@@ -1,0 +1,95 @@
+*{
+    font-style: serif;
+}
+
+#dashboard-window, #traversal-window{
+    min-height: -webkit-calc(100vh - 20px);
+    min-height: -moz-calc(100vh - 20px);
+    min-height: calc(100vh - 20px);
+    text-align: center;
+    font-style: serif;
+
+}
+
+body{    background-color: rgb(48, 48, 38);
+}
+
+img{
+    width: 100%;
+    height:auto;
+}
+
+a:hover{
+    color: rgb(177, 201, 71);
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.selected{
+    color: rgb(177, 201, 71);
+    text-decoration: none;
+    font-weight: bold; 
+}
+li h6:hover{
+    background-color: rgb(149, 165, 152)
+}
+li h6{transition:0.2s}
+
+
+div.sticky{box-shadow: 0 3px 3px rgba(48, 48, 38,.5)}
+
+h6 span:hover{
+    color: rgb(177, 201, 71);
+}
+
+
+
+#vertical_nav li:hover{
+    background-color: rgb(98, 117, 76);
+    color: rgb(177, 201, 71);
+    font-weight: bold;
+}
+#vertical_nav li{
+    transition: 0.2s
+}
+
+
+.nav {
+    height:43px;
+    font-size: 25px;
+    background-color: rgb(48, 48, 38)
+    
+}
+
+.nav i:hover {
+    color: rgb(177, 201, 71);
+    cursor: pointer;
+}
+.nav.nav-menu {
+    font-size: 13px;
+    transition: 0.5s;
+    width: 300px;
+    overflow: hidden;
+}
+
+.nav.nav-menu a{
+    transition: 0.3s;
+    display: inline-block;
+    overflow: hidden;
+    width: 0px;
+    height:20px;
+    
+}
+.text-warm-dark{color: rgb(65, 60, 46)}
+.bg-dark-green{background-color: rgb(48, 48, 38)}
+.text-darkgreen{color: rgb(114, 133, 69)}
+.text-neutral{color:rgb(175, 177, 167) }
+
+
+.text-lightgreen{color: rgb(194, 221, 75);}
+.text-disabled{color: rgb(97, 102, 75)}
+.bg-neutral{background-color: rgb(165, 179, 169)}
+.bg-disabled{background-color: rgb(108, 110, 97)}
+.bg-darkgreen{background-color: rgb(95, 117, 94)}
+
+div.sticky:hover{background-color: rgb(96, 102, 67);}
