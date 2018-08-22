@@ -12,6 +12,7 @@ urlpatterns = [
     url(r'^login_process$', views.login_process),
     url(r'^register_process$', views.register_process),
     url(r'^submit_process/(?P<node_id>\d+)$', views.submit_process),
+    url(r'^watch/(?P<node_id>\d+)$', views.watch_process),
 
     url(r'^logout$', views.logout_process),
 ]

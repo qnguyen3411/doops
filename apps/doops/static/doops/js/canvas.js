@@ -1,4 +1,3 @@
-console.log("HELLO ORLD")
 
 $( document ).ready(function() {
     // Tab functionalities;
@@ -21,8 +20,8 @@ $( document ).ready(function() {
     var currX = 0;
     var prevY = 0;
     var currY = 0;
-    flag = false;
-    dot_flag = false;
+    var flag = false;
+    var dot_flag = false;
     var overlay = document.getElementById('topCanvas');
     var ovl_ctx = overlay.getContext("2d")
     var start_img = document.getElementById('start_img')
@@ -39,8 +38,6 @@ $( document ).ready(function() {
     var color = "black";
     var opacity = 1.0;
     var size = 1;
-    var pen_opacity = 1;
-    var pen_size = 1;
     //Canvas functionality
     $( '.canvas-container' )
         .mousedown(function(e) {
@@ -102,7 +99,6 @@ $( document ).ready(function() {
         }else{
             ctx.strokeStyle = "white";
         }
-
         ctx.lineCap="round";
         ctx.lineWidth = size;
         ctx.beginPath();
@@ -164,14 +160,14 @@ $( document ).ready(function() {
         $(this).prev().html(val)
         if($(this).hasClass('rgb')){
             update_color("rgb",
-            $('#red').val(),
-            $('#green').val(),
-            $('#blue').val())
+                $('#red').val(),
+                $('#green').val(),
+                $('#blue').val())
         }else{
             update_color("hsl",
-            $('#hue').val(),
-            $('#saturation').val(),
-            $('#lightness').val())
+                $('#hue').val(),
+                $('#saturation').val(),
+                $('#lightness').val())
         }
     })
     
@@ -221,38 +217,30 @@ $( document ).ready(function() {
     }
 
     function update_color(mode, val1, val2, val3){
-        //handle RGB
         if(mode == "rgb"){
+            //update color
             color = "" + mode + "(" + val1 + "," + val2 + "," + val3 + ")"
+            //update sliders
+            var rgbBox = document.getElementById('rgb');
+            updateSliders(rgbBox, [val1, val2, val3]);
+            var hslBox = document.getElementById('hsl');
+            updateSliders(hslBox, rgbToHsl(val1, val2, val3));
         }else{
+            //update color
             color = "" + mode + "(" + val1 + "," + val2 + "%," + val3 + "%)"
+            //update sliders
+            var rgbBox = document.getElementById('rgb');
+            updateSliders(rgbBox, hslToRgb(val1, val2, val3));
         }
-        $('#curr-color').css('background-color', color)
-        //update sliders
-        if(mode == "rgb"){
-            $('#red').prev().html(val1)
-            $('#red').val(val1)
-            $('#green').prev().html(val2)
-            $('#green').val(val2)
-            $('#blue').prev().html(val3)
-            $('#blue').val(val3)
-            var hsl = rgbToHsl(val1, val2, val3)
-            $('#hue').prev().html(hsl[0])
-            $('#hue').val(hsl[0])
-            $('#saturation').prev().html(hsl[1])
-            $('#saturation').val(hsl[1])
-            $('#lightness').prev().html(hsl[2])
-            $('#lightness').val(hsl[2])
-        }else{
-            var rgb = hslToRgb(val1, val2, val3)
-            $('#red').prev().html(rgb[0])
-            $('#red').val(rgb[0])
-            $('#green').prev().html(rgb[1])
-            $('#green').val(rgb[1])
-            $('#blue').prev().html(rgb[2])
-            $('#blue').val(rgb[2])
+        $('#curr-color').css('background-color', color);
+    }
+    function updateSliders(container, values){
+        for(var i = 0; i < 3; i++){
+            $($(container).children('span')[i]).html(values[i])
+            $($(container).children('input')[i]).val(values[i])
         }
     }
+
     function hslToRgb(h, s, l){
         h /= 360, s /= 100, l /= 100;
         var r, g, b;
@@ -300,22 +288,11 @@ $( document ).ready(function() {
 
 
     $('#submit-button').click(function(){
-        url = canvas.toDataURL()
-        console.log(url)
-        
-
-        
-        $('#submit').append('<input type="hidden" name="data_url" value="'+url+'">')
-        
+        url = canvas.toDataURL();
+        $('#submit').append('<input type="hidden" name="data_url" value="'+url+'">');
         $('#submit').submit();
-
     })
-    
     //initialize page
     $('#sliders').hide()
     $('#curr-color').css('background-color', color)
-    // ctx.fillStyle = "white";
-    // ctx.fillRect(0, 0, canvas.width, canvas.height);
-    // ovl_ctx.fillStyle = "white";
-    // ovl_ctx.fillRect(0, 0, canvas.width, canvas.height);
 });

@@ -2,6 +2,12 @@ from django.shortcuts import render, HttpResponse, redirect
 from django.contrib import messages
 from django.views.decorators.csrf import csrf_exempt
 from django.core import serializers
+from django.db.models import Count
+from django.db.models.functions import Length
+
+from django.core import serializers
+from django.http import JsonResponse
+from django.db.models import F
 import json
 import bcrypt
 from .models import *
@@ -26,7 +32,8 @@ def canvas_page(request, node_id=0):
 
 def dashboard_page(request):
     data = {
-        'canvases' : CanvasNode.objects.order_by('-id')
+        'canvases' : CanvasNode.objects.order_by('-id'),
+        'self' : User.objects.get(id=request.session['id'])
     }
     return render(request, "doops/dashboard.html", data)
 
@@ -97,8 +104,52 @@ def submit_process(request, node_id):
         )
     return redirect('/')
 
-def get_nodes():
-    return HttpResponse("HEYBOI")
+def watch_process(request, node_id):
+    if 'id' in request.session:
+        
+        canvas_list = CanvasNode.objects.filter(id=int(node_id))
+        if canvas_list:
+            canvas = canvas_list[0]
+        this_user = User.objects.get(id=request.session['id'])
+        canvas.watched_users.add(this_user)
+        print(canvas.watched_users.all())
+    return redirect('/')
+
+@csrf_exempt
+def get_nodes(request):
+    output = ""
+    canvas_list =[]
+    for key,value in request.POST.items():
+        output += key
+        output += " "
+        output += value
+        output += "\n"
+    if request.POST['sort'] == 'new':
+        sort = '-id'
+        sort2 = '-num_watchers'
+    else:
+        sort = '-num_watchers'
+        sort2 = '-id'
+    canvas_list = CanvasNode.objects.annotate(poster_posted_canvas_count = Length('poster__posted_canvases'))
+    canvas_list = canvas_list.annotate(poster_watched_canvas_count = Length('poster__watched_canvases'))
+    canvas_list = canvas_list.annotate(num_watchers = Length('watched_users'))
+    canvas_list = canvas_list.annotate(children_count = Length('children'))
+    canvas_list = canvas_list.order_by(sort, sort2)
+    if request.POST['mode'] == 'all':
+        pass
+    elif request.POST['mode'] == 'post':
+        canvas_list = canvas_list.filter(poster__id = int(request.POST['user_id']))
+    elif request.POST['mode'] == 'watch':
+        canvas_list = canvas_list.filter(watched_users__id = int(request.POST['user_id']))
+    else:
+        canvas_list = canvas_list.filter(parent__id = int(request.POST['node_id']))
+
+    canvas_list = canvas_list.annotate(poster_name = F('poster__username'))
+    # canv_list = canvas_list.values()
+    # return HttpResponse(output)
+    return JsonResponse({'canvas_list': list(canvas_list.values()) })
+
+
 
 def logout_process(request):
     request.session.clear()

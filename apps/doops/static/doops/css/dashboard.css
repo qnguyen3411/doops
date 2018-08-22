@@ -38,9 +38,9 @@ li h6{transition:0.2s}
 
 div.sticky{box-shadow: 0 3px 3px rgba(48, 48, 38,.5)}
 
-h6 span:hover{
+/* h6 span:hover{
     color: rgb(177, 201, 71);
-}
+} */
 
 
 
@@ -54,31 +54,20 @@ h6 span:hover{
 }
 
 
-.nav {
+.top-nav {
     height:43px;
-    font-size: 25px;
     background-color: rgb(48, 48, 38)
     
 }
 
-.nav i:hover {
+.top-nav i:hover {
     color: rgb(177, 201, 71);
     cursor: pointer;
 }
-.nav.nav-menu {
-    font-size: 13px;
-    transition: 0.5s;
-    width: 300px;
-    overflow: hidden;
-}
 
-.nav.nav-menu a{
+
+.top-nav a{
     transition: 0.3s;
-    display: inline-block;
-    overflow: hidden;
-    width: 0px;
-    height:20px;
-    
 }
 .text-warm-dark{color: rgb(65, 60, 46)}
 .bg-dark-green{background-color: rgb(48, 48, 38)}

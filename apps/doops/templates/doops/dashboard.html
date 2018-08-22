@@ -16,54 +16,34 @@
 </head>
 <body class="pt-1">
     
-    <h6 class="nav text-disabled col-12 mx-auto py-1" style="position: sticky; top: 0; z-index:4;">
-        <div class="col-12 col-md-8 mx-auto row">
-            <i class="fas fa-bars p-1 pt-0"></i>
-            <div id="nav-menu" class="nav nav-menu">
-                <div class="fixed pt-2 pl-3" style="width: 300px;">
-                <a class="text-disabled" href="/users/1/settings">Settings </a>  <a class="text-disabled" href="/logout"> Log out</a>
-                </div>
-            </div>
-        </div>
+    <h6 class="top-nav text-disabled col-12 mx-auto pt-2 text-center" style="position: sticky; top: 0; z-index:4;">
+        <strong >
+        <a class="mx-1 text-disabled" href="/users/1/settings">{{self.username}} </a></strong> |
+        <span userID="{{self.id}}">
+        <a class="browse-settings post mx-1 text-disabled" href="#">{{self.posted_canvases.all.count}} Posted </a>|
+        <a class="browse-settings watch mx-1 text-disabled" href="#">{{self.watched_canvases.all.count}} Watches </a>|
+        </span>
+
+        <a class="mx-1 text-disabled" href="/users/{{self.id}}/settings">Settings </a>|
+        <a class="mx-1 text-disabled" href="/logout"> Log out</a>
+        
     </h6>
     <!-- end nav -->
     <div class="row p-0 mx-0 mt-2">
         <div id="vertical_nav" class="card ml-auto px-0 bg-transparent border-0 d-none d-sm-block" style="width:140px">
-            <ul class="list-group text-warm-dark" style="position: sticky; top: 40px; z-index:4;">
+            <ul class="list-group text-warm-dark mr-1" style="position: sticky; top: 40px; z-index:4;">
                 <!-- when browsing other user's galleries -->
-                <li class="rounded small my-1 text-neutral" >
-                    Jimmy69
-                </li>
-                <li class="rounded small ml-2 text-neutral" >
-                    <small>
-                    Joined in: 2-1-2018
-                    </small>
-                </li>
-                <li class="rounded small  ml-2 text-neutral" >
-                    <small>
-                    <strong>23</strong> Watches
-                    </small>
-                </li>
-                <li class="rounded  small  ml-2 text-neutral" >
-                    <small>
-                    <strong>23</strong> Submitted
-                    </small>
-                </li>
+                
                 <!-- when browsing nodes -->
-                <li class="rounded small mt-4 text-neutral" >
-                    <small>
-                    <i class="fas fa-chevron-left"></i> To Parent</small>
+                <li class="list-group-item bg-disabled border-0 browse-settings all rounded mt-1 text-neutral" >
+                    <a class="browse-settings">To Root</a>
                 </li>
-                <li class="rounded small  text-neutral" >
-                    <small>
-                    <i class="fas fa-chevron-left"></i>/ To Root</small>
-                </li>
-                <li class="rounded small text-neutral" >
-                    <a href="/canvas"><i class="fas fa-palette"></i>+New drawing</a>
+                <li class="list-group-item bg-disabled border-0 browse-settings all rounded mt-1 text-neutral" >
+                        <a class="text-neutral" href="/canvas"><i class="fas fa-palette"></i>+New drawing</a>
                 </li>
                 <!-- you -->
 
-                <li class="rounded small my-1 mt-4 pl-2 text-neutral" >
+                <!-- <li class="rounded small my-1 mt-4 pl-2 text-neutral" >
                     You:
                 </li>
                 <li class="rounded small  ml-2 text-neutral" >
@@ -75,45 +55,57 @@
                     <small>
                     <strong>23</strong> Submitted
                     </small>
-                </li>
+                </li> -->
             </ul>
         </div>
         <div id="dashboard_window" class="card col-11 col-sm-9 col-lg-7 mr-auto d-none d-block bg-transparent text-dark px-0 border-0">
-            <div class="sticky card text-left bg-darkgreen mx-1" style="position: sticky; top: 40px; z-index:4;">
+            <div class="sticky card text-left bg-darkgreen" style="position: sticky; top: 40px; z-index:4;">
                 <h6 class="pl-3 py-2 bg-transparent text-warm-dark row mx-1 my-0">
-                    <p class="col-7 my-0 d-none d-md-block">
-                        <i class="fas fa-tree p-1 pt-0"></i>
-                        Browsing 
-                        <span class="text-lightgreen">Jimmy69</span>
-                        's submissions</p>
-                    <p class="col-12 col-md-5 ml-auto my-0 text-right"><a class="text-warm-dark" href="">Newest</a> | <a class="text-warm-dark" href="">Most tracked</a></p>
+                    <p id="head-description" class="m-0">Browsing all nodes</p>
+
+                    <p class="col-12 col-md-5 ml-auto my-0 text-right">
+                        <a class="sort-settings new mx-1 text-warm-dark" href="#">Newest </a>|
+                        <a class="sort-settings popular mx-1 text-warm-dark" href="#">Most popular </a>
+                    </p>
                 </h6>
             </div>
-            <ul class="list-group bg-transparent">
+            <ul id="canvas-list" class="list-group bg-transparent">
                 {% for canvas in canvases %}
                 <li class="list-group-item p-0 mx-1 mt-2 bg-neutral border-0">
-                    <h6 class="card-header font-weight-bold bg-neutral d-block">
-                        <a class="text-disabled" href="">{{canvas.poster.username}}</a>
-                        <a href="#" class="text-disabled font-weight-bold"><small>|23 posted</small></a>
-                        <a href="#" class="text-disabled font-weight-bold"><small>|23 watches</small></a>
-                        <a></a>
-
+                    <h6 class="card-header font-weight-bold d-block mx-1 pb-0">
+                        <div class="row">
+                            <p class="col-7 ">
+                            <a class="browse-settings text-disabled" href="">{{canvas.poster.username}}</a>
+                            <span userID="{{canvas.poster.id}}">
+                                <a class="browse-settings post text-disabled font-weight-bold small" href="#">|{{canvas.poster.posted_canvases.count}} posted</a>
+                                <a class="browse-settings watch text-disabled font-weight-bold small" href="#">|{{canvas.poster.watched_canvases.count}} watches</a>
+                            </span>
+                            </p> 
+                            <p class="col-5 my-0 text-right">
+                                    <!-- <a class="text-disabled" href="/watch/{{canvas.id}}"><i class="fas fa-plus"></i><small>Watch</small></a> -->
+                                    <a class="text-disabled" href="/canvas/{{canvas.id}}"><i class="fas fa-palette ml-3"></i><small>Draw</small></a>
+                            </p>
+                        </div>
                     </h6>
-                    <img class="rounded " src="{{canvas.data_url}}" alt="">
+                    <span nodeID="{{canvas.id}}">
+                    <img class=" browse-settings node rounded " src="{{canvas.data_url}}" alt="">
+                    </span>
                     <h6 class=" p-1 m-0 text-warm-dark text-right">
-                        <span class="mr-4"><a href="" class="text-disabled"><span class="font-weight-bold">23</span> trackers</a> </span>
-                        <span class="mr-4"><a href="" class="text-disabled"><span class="font-weight-bold">5</span> branches</a> </span>
-                        <span class="mr-4"><a href="" class="text-disabled"><span class="font-weight-bold">21</span> descendants</a> </span>
-                        <span class="mr-2"><a href="/canvas/{{canvas.id}}" class="text-disabled"><span class="font-weight-bold">Draw</span></a> </span>
+                        <span class="mr-2"><a href="/watch/{{canvas.id}}" class="text-disabled small"><span class="font-weight-bold">{{canvas.watched_users.all.count}}</span> watches</a> </span>
+                        <span class="mr-2"><a href="" class="text-disabled small"><span class="font-weight-bold">{{canvas.children.all.count}}</span> branches</a> </span>
+                        <!-- <span class="mr-2"><a href="" class="text-disabled"><span class="font-weight-bold">21</span> descendants</a> </span> -->
                     </h6>
                 </li>
                 {% endfor %}
             </ul>
         </div>
         <!-- end dashboard window -->
-        <div id="nav">
-
-        </div>
+        <form id="browse-settings">
+            <input class="mode" type="hidden" name="mode" value="all">
+            <input class="node_id" type="hidden" name="node_id" value="0">
+            <input class="user_id" type="hidden" name="user_id" value="0">
+            <input class="sort" type="hidden" name="sort" value="new">
+        </form>
     </div>
 </body>
 </html>
