@@ -2,12 +2,10 @@
 $( document ).ready(function() {
     // Tab functionalities;
     function handler1() {
-        console.log("HEY")
         $('#nav-menu a').css('width', 70);
         $(this).one("click", handler2);
     }
     function handler2() {
-        console.log("HO")
         $('#nav-menu a').css('width', 0);
         $(this).one("click", handler1);
     }
@@ -156,8 +154,6 @@ $( document ).ready(function() {
 
     
     $('#rgb input , #hsl input').on("input change",function(){
-        val  =  this.value
-        $(this).prev().html(val)
         if($(this).hasClass('rgb')){
             update_color("rgb",
                 $('#red').val(),

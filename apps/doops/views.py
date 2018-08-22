@@ -4,8 +4,6 @@ from django.views.decorators.csrf import csrf_exempt
 from django.core import serializers
 from django.db.models import Count
 from django.db.models.functions import Length
-
-from django.core import serializers
 from django.http import JsonResponse
 from django.db.models import F
 import json
@@ -30,18 +28,39 @@ def canvas_page(request, node_id=0):
     
     return render(request, "doops/canvas.html", data)
 
-def dashboard_page(request):
-    data = {
-        'canvases' : CanvasNode.objects.order_by('-id'),
-        'self' : User.objects.get(id=request.session['id'])
-    }
-    return render(request, "doops/dashboard.html", data)
+def dashboard_page(request, sort, mode, id ):
+    if 'id' in request.session:
+        target = None;
+        if sort == "popular":
+            primary_sort = "-num_watchers"
+            secondary_sort = "-id"
+        else:
+            sort = "new"
+            primary_sort = "-id"
+            secondary_sort = "-num_watchers"
 
+        canvas_list = CanvasNode.objects.annotate(num_watchers = Length('watched_users')).order_by(primary_sort, secondary_sort)
+        if id != "":
+            if mode == "post":
+                canvas_list = canvas_list.filter(poster__id = int(id))
+                target = User.objects.get(id = id)
+            elif mode == "watch":
+                canvas_list = canvas_list.filter(watched_users__id = int(id))
+                target = User.objects.get(id = id)
+            elif mode == "node":
+                canvas_list = canvas_list.filter(parent__id = int(id))
+                target = CanvasNode.objects.get(id = id)
+            
+        data = {
+            'canvases' : canvas_list,
+            'browse_settings': {'mode': ("/"+ mode), 'id': ("/" + id), 'sort': ("/" + sort)},
+            'target' : target,
+            'self' : User.objects.get(id=request.session['id'])
+        }
+        return render(request, "doops/dashboard.html", data)
+    return redirect('/')
 def settings_page(request,id):
     return render(request, "doops/settings.html")
-
-
-
 
 
 def register_process(request):
@@ -114,41 +133,6 @@ def watch_process(request, node_id):
         canvas.watched_users.add(this_user)
         print(canvas.watched_users.all())
     return redirect('/')
-
-@csrf_exempt
-def get_nodes(request):
-    output = ""
-    canvas_list =[]
-    for key,value in request.POST.items():
-        output += key
-        output += " "
-        output += value
-        output += "\n"
-    if request.POST['sort'] == 'new':
-        sort = '-id'
-        sort2 = '-num_watchers'
-    else:
-        sort = '-num_watchers'
-        sort2 = '-id'
-    canvas_list = CanvasNode.objects.annotate(poster_posted_canvas_count = Length('poster__posted_canvases'))
-    canvas_list = canvas_list.annotate(poster_watched_canvas_count = Length('poster__watched_canvases'))
-    canvas_list = canvas_list.annotate(num_watchers = Length('watched_users'))
-    canvas_list = canvas_list.annotate(children_count = Length('children'))
-    canvas_list = canvas_list.order_by(sort, sort2)
-    if request.POST['mode'] == 'all':
-        pass
-    elif request.POST['mode'] == 'post':
-        canvas_list = canvas_list.filter(poster__id = int(request.POST['user_id']))
-    elif request.POST['mode'] == 'watch':
-        canvas_list = canvas_list.filter(watched_users__id = int(request.POST['user_id']))
-    else:
-        canvas_list = canvas_list.filter(parent__id = int(request.POST['node_id']))
-
-    canvas_list = canvas_list.annotate(poster_name = F('poster__username'))
-    # canv_list = canvas_list.values()
-    # return HttpResponse(output)
-    return JsonResponse({'canvas_list': list(canvas_list.values()) })
-
 
 
 def logout_process(request):

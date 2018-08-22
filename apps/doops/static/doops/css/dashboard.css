@@ -17,6 +17,7 @@ body{    background-color: rgb(48, 48, 38);
 img{
     width: 100%;
     height:auto;
+    cursor: pointer;
 }
 
 a:hover{
@@ -25,27 +26,31 @@ a:hover{
     font-weight: bold;
 }
 
-.selected{
-    color: rgb(177, 201, 71);
-    text-decoration: none;
-    font-weight: bold; 
-}
-li h6:hover{
-    background-color: rgb(149, 165, 152)
-}
-li h6{transition:0.2s}
 
+.selected{
+    border: 2px solid rgb(177, 201, 71);
+    color: rgb(177, 201, 71);    
+    border-radius: 5px;
+}
+
+li{
+    transition:0.3s;
+}
+li:hover{
+    background-color: rgb(149, 165, 152);
+}
 
 div.sticky{box-shadow: 0 3px 3px rgba(48, 48, 38,.5)}
 
-/* h6 span:hover{
-    color: rgb(177, 201, 71);
-} */
+#maincontainer ul{
+    position: sticky; top: 40px;;
+}
 
-
-
+#vertical_nav{
+    width:130px;
+}
 #vertical_nav li:hover{
-    background-color: rgb(98, 117, 76);
+    background-color: rgb(92, 95, 83);
     color: rgb(177, 201, 71);
     font-weight: bold;
 }
@@ -66,9 +71,6 @@ div.sticky{box-shadow: 0 3px 3px rgba(48, 48, 38,.5)}
 }
 
 
-.top-nav a{
-    transition: 0.3s;
-}
 .text-warm-dark{color: rgb(65, 60, 46)}
 .bg-dark-green{background-color: rgb(48, 48, 38)}
 .text-darkgreen{color: rgb(114, 133, 69)}
@@ -81,4 +83,3 @@ div.sticky{box-shadow: 0 3px 3px rgba(48, 48, 38,.5)}
 .bg-disabled{background-color: rgb(108, 110, 97)}
 .bg-darkgreen{background-color: rgb(95, 117, 94)}
 
-div.sticky:hover{background-color: rgb(96, 102, 67);}

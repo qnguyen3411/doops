@@ -52,10 +52,16 @@ body{
     height: 45px;
     text-align: center;
     font-size: 30px;
+    transition: 0.2s;
     
 }
+
+.tool:hover{
+    color: rgb(177, 201, 71);    
+}
 .selected{
-    border: 2px solid rgb(175, 177, 167);
+    border: 2px solid rgb(177, 201, 71);
+    color: rgb(177, 201, 71);    
     border-radius: 5px;
 }
 .tool-settings{
@@ -64,7 +70,6 @@ body{
 
 a:hover{
     color: rgb(177, 201, 71);
-    background-color: rgb(121, 124, 108);
     text-decoration: none;
     border-radius: 5px;
 }
