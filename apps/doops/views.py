@@ -50,7 +50,8 @@ def dashboard_page(request, sort, mode, id ):
             elif mode == "node":
                 canvas_list = canvas_list.filter(parent__id = int(id))
                 target = CanvasNode.objects.get(id = id)
-            
+        else:
+            canvas_list = canvas_list.filter(parent=None)
         data = {
             'canvases' : canvas_list,
             'browse_settings': {'mode': ("/"+ mode), 'id': ("/" + id), 'sort': ("/" + sort)},

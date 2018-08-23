@@ -78,4 +78,30 @@ class CanvasNode(models.Model):
 
     def isRoot(self):
         return self.parent == None;
-    
+
+    def num_descendants(self):
+        count = 0
+        for child in self.children.all():
+            count += 1
+            count += child.num_descendants()
+        return count
+
+    def get_descendants(self):
+        descendant_list = self.children.all()
+        children_list = descendant_list
+        for child in children_list:
+            descendant_list = descendant_list | child.get_descendants()
+
+        return descendant_list
+
+    def total_watches(self):
+        count = 0
+        count += self.watched_users.all().count()
+        for child in self.children.all():
+            count += child.total_watches()
+        return count
+
+    def get_generation(self):
+        if self.parent == None:
+            return 0
+        return (self.parent.get_generation() + 1)

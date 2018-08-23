@@ -2,13 +2,16 @@
     font-style: serif;
 }
 
-#dashboard-window, #traversal-window{
+#dashboard_window{
     min-height: -webkit-calc(100vh - 20px);
     min-height: -moz-calc(100vh - 20px);
     min-height: calc(100vh - 20px);
     text-align: center;
     font-style: serif;
-
+    width: 550px;
+}
+#maincontainer{
+    min-width: 630px;
 }
 
 body{    background-color: rgb(48, 48, 38);
@@ -40,14 +43,17 @@ li:hover{
     background-color: rgb(149, 165, 152);
 }
 
-div.sticky{box-shadow: 0 3px 3px rgba(48, 48, 38,.5)}
+#header-box{
+    height:60px;
+    box-shadow: 0 3px 3px rgba(48, 48, 38,.5);
+}
 
 #maincontainer ul{
     position: sticky; top: 40px;;
 }
 
 #vertical_nav{
-    width:130px;
+    width:80px;
 }
 #vertical_nav li:hover{
     background-color: rgb(92, 95, 83);
