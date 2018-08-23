@@ -21,7 +21,9 @@
         <a class="mx-1 text-disabled" href="/users/1/settings">{{self.username}} </a></strong> |
         <span userID="{{self.id}}">
         <a class=" mx-1 text-disabled" href="/dashboard{{browse_settings.sort}}/post/{{self.id}}">{{self.posted_canvases.all.count}} Posted </a>|
-        <a class=" mx-1 text-disabled" href="/dashboard{{browse_settings.sort}}/watch/{{self.id}}">{{self.watched_canvases.all.count}} Watches </a>|
+        <a id="self-numwatch" class=" mx-1 text-disabled" href="/dashboard{{browse_settings.sort}}/watch/{{self.id}}">
+            {{self.watched_canvases.all.count}} Watches 
+        </a>|
         </span>
 
         <a class="mx-1 text-disabled" href="/users/{{self.id}}/settings">Settings </a>|
@@ -50,8 +52,10 @@
             <div id="header-box" class="sticky rounded bg-disabled" style="position: sticky; top: 40px; z-index:4;">
                 <h6 class="pl-3 py-2 d-flex mx-1 my-0 text-neutral">
                         <div>
-                        {% if browse_settings.mode == '/node' %}
+                        {% if browse_settings.mode == '/branch' %}
                         Browsing node #{{target.id}}'s branches
+                        {% elif browse_settings.mode == '/subtree' %}
+                        Browsing node #{{target.id}}'s descendants
                         {% elif browse_settings.mode == '/watch' or browse_settings.mode == '/post' %}
                         <span class="text-lightgreen mr-2 small">
                             <strong>{{target.username}} </strong>
@@ -66,7 +70,7 @@
                         ID: {{target.id}} | Joined: {{target.created_at.date}}
                         </div>
                         {% else %}
-                        Browsing Root nodes
+                        Browsing<span class="text-lightgreen"> Root</span> nodes
                         {% endif %}
                         </div>
 
@@ -79,49 +83,62 @@
                 </h6>
             </div>
             <ul id="canvas-list" class="list-group bg-transparent">
-                {% if browse_settings.mode == '/node' %}
-                <li class="list-group-item font-weight-bold p-0  mt-2 bg-neutral rounded ">
+                {% if browse_settings.mode == '/branch' or browse_settings.mode == '/subtree'%}
+                <li id="canvas-{{target.id}}" class="list-group-item font-weight-bold p-0  mt-2 bg-neutral rounded ">
                     <div class="card-header d-flex justify-content-between">
                         <div class="d-inline-block p-0 m-0 text-disabled small ">
                             Gen : <strong>{{target.get_generation}} </strong>(Parent)|
-                            <strong>{{target.children.all.count}}</strong> branches |
-                            <strong>{{target.num_descendants}}</strong> descendants
+                            <a class="text-disabled" href="/dashboard{{browse_settings.sort}}/branch/{{target.id}}" ><strong>{{target.children.all.count}}</strong> branches</a>|
+                            <a class="text-disabled" href="/dashboard{{browse_settings.sort}}/subtree/{{target.id}}"><strong>{{target.num_descendants}}</strong> descendants</a>|
+                            <div canvasID="{{canvas.id}}" class="{% if self in target.watched_users.all %}text-lightgreen{%else%}text-disabled{% endif %} d-inline watch-button">
+                                <span class="font-weight-bold watches">{{target.watched_users.all.count}}</span>
+                                watches (<span class="font-weight-bold total-watches">{{target.total_watches}}</span> total)
+                            </div> 
+
                         </div> 
                         <div class="d-inline-block p-0 my-0 text-right">
                             <a class="browse-settings text-disabled" href="/dashboard{{browse_settings.sort}}/post/{{target.poster.id}}">{{target.poster.username}}</a>
                         </div>
                     </div>
-                    <a href="/dashboard{{browse_settings.sort}}/node/{{target.id}}">
-                        <img class=" browse-settings node rounded " src="{{target.data_url}}" alt="">
-                    </a>
+                    <img class=" browse-settings node rounded " src="{{target.data_url}}" alt="">
                     <div class=" p-1 m-0 text-warm-dark d-flex justify-content-between">
-                        <span class="mr-2"><a href="/watch/{{target.id}}" class="text-disabled small"><span class="font-weight-bold">{{target.watched_users.all.count}}</span> watches</a> </span>
-                        <span class="mr-2"><a href="" class="text-disabled small"><span class="font-weight-bold">{{target.children.all.count}}</span> branches</a> </span>
+                        <div class="d-inline-block">
+                            {% if canvas.get_generation != 0 %}
+                            <a class="text-disabled" href="/dashboard{{browse_settings.sort}}/branch/{{target.parent.id}}"><i class="fas fa-arrow-left mx-1"></i><small>To parent</small></a> |
+                            {% endif %}
+                            <a class="text-disabled" href="/dashboard{{browse_settings.sort}}/branch/{{target.id}}"><small>To branches</small><i class="fas fa-arrow-right mx-1"></i></a>
+                        </div>
                         <a class="text-disabled" href="/canvas/{{target.id}}"><i class="fas fa-palette ml-3"></i>Draw</a>
                     </div>
                 </li>
                 {% endif%}
                 {% for canvas in canvases %}
-                <li class="list-group-item font-weight-bold p-0  mt-2 bg-neutral rounded ">
+                <li id="canvas-{{canvas.id}}" class="list-group-item font-weight-bold p-0  mt-2 bg-neutral rounded ">
                     <div class="card-header d-flex justify-content-between">
                         <div class="d-inline-block p-0 m-0 text-disabled small ">
                             Gen : <strong>{{canvas.get_generation}} </strong>|
-                            <strong>{{canvas.children.all.count}}</strong> branches |
-                            <strong>{{canvas.num_descendants}}</strong> descendants |
-                            <a href="/watch/{{canvas.id}}" class="text-disabled"><span class="font-weight-bold">{{canvas.watched_users.all.count}}</span> watches (<span class="font-weight-bold">{{canvas.total_watches}}</span> total)</a> 
+                            <a class="text-disabled" href="/dashboard{{browse_settings.sort}}/branch/{{canvas.id}}" ><strong>{{canvas.children.all.count}}</strong> branches</a>|
+                            <a class="text-disabled" href="/dashboard{{browse_settings.sort}}/subtree/{{canvas.id}}"><strong>{{canvas.num_descendants}}</strong> descendants</a>|
+                            
+                            
+                            
+                            <div canvasID="{{canvas.id}}" class="{% if self in canvas.watched_users.all %}text-lightgreen{%else%}text-disabled{% endif %} d-inline watch-button">
+                                <span class="font-weight-bold watches">{{canvas.watched_users.all.count}}</span> 
+                                watches (<span class="font-weight-bold total-watches">{{canvas.total_watches}}</span> total)
+                            </div> 
 
                         </div> 
                         <div class="d-inline-block p-0 my-0 text-right">
                             <a class="browse-settings text-disabled" href="/dashboard{{browse_settings.sort}}/post/{{canvas.poster.id}}">{{canvas.poster.username}}</a>
                         </div>
                     </div>
-                    <a href="/dashboard{{browse_settings.sort}}/node/{{canvas.id}}">
-                        <img class=" browse-settings node rounded " src="{{canvas.data_url}}" alt="">
-                    </a>
+                    <img class=" browse-settings node rounded " src="{{canvas.data_url}}" alt="">
                     <div class=" p-1 m-0 text-warm-dark d-flex justify-content-between">
                         <div class="d-inline-block">
-                            <a class="text-disabled" href="/canvas/{{canvas.id}}"><i class="fas fa-arrow-left mx-1"></i><small>To parent</small></a> |
-                            <a class="text-disabled" href="/canvas/{{canvas.id}}"><small>To branches</small><i class="fas fa-arrow-right mx-1"></i></a>
+                            {% if canvas.get_generation != 0 %}
+                            <a class="text-disabled" href="/dashboard{{browse_settings.sort}}/branch/{{canvas.parent.id}}"><i class="fas fa-arrow-left mx-1"></i><small>To parent</small></a> |
+                            {% endif %}
+                            <a class="text-disabled" href="/dashboard{{browse_settings.sort}}/branch/{{canvas.id}}"><small>To branches</small><i class="fas fa-arrow-right mx-1"></i></a>
                         </div>
                         <a class="text-disabled" href="/canvas/{{canvas.id}}"><i class="fas fa-palette ml-3"></i>Draw</a>
                     </div>

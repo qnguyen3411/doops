@@ -4,7 +4,7 @@ urlpatterns = [
     url(r'^$', views.index),
     url(r'^canvas$', views.canvas_page),
     url(r'^canvas/(?P<node_id>\d+)$', views.canvas_page),
-    url(r'dashboard/(?P<sort>((new)|(popular)))?/?(?P<mode>((post)|(watch)|(node))?)/?(?P<id>(\d+)?)/?$', views.dashboard_page),
+    url(r'dashboard/(?P<sort>((new)|(popular)))?/?(?P<mode>((post)|(watch)|(branch)|(subtree))?)/?(?P<id>(\d+)?)/?$', views.dashboard_page),
     url(r'^users/(?P<id>\d+)/settings$', views.settings_page),
 
     # url(r'^get_nodes$', views.get_nodes),

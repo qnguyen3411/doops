@@ -2,7 +2,7 @@ from django.shortcuts import render, HttpResponse, redirect
 from django.contrib import messages
 from django.views.decorators.csrf import csrf_exempt
 from django.core import serializers
-from django.db.models import Count
+from django.db.models import Count, Case, When, Value, IntegerField
 from django.db.models.functions import Length
 from django.http import JsonResponse
 from django.db.models import F
@@ -22,12 +22,16 @@ def canvas_page(request, node_id=0):
         if canv_list: 
             data['isRoot'] = False
             data['parent'] = canv_list[0]
-            print("ISNOTROOT!")
         else:
             data['isRoot'] = True;
     
     return render(request, "doops/canvas.html", data)
 
+""" Performs filters based on specifications
+Sort : new/popular (to implement - by branch num, by generation, by descendant num)
+mode : posts by user id, watches by user id, branches of node id, descendants of node id, or all roots
+id : can be user id or node id
+"""
 def dashboard_page(request, sort, mode, id ):
     if 'id' in request.session:
         target = None;
@@ -39,7 +43,7 @@ def dashboard_page(request, sort, mode, id ):
             primary_sort = "-id"
             secondary_sort = "-num_watchers"
 
-        canvas_list = CanvasNode.objects.annotate(num_watchers = Length('watched_users')).order_by(primary_sort, secondary_sort)
+        canvas_list = CanvasNode.objects.all()
         if id != "":
             if mode == "post":
                 canvas_list = canvas_list.filter(poster__id = int(id))
@@ -47,11 +51,17 @@ def dashboard_page(request, sort, mode, id ):
             elif mode == "watch":
                 canvas_list = canvas_list.filter(watched_users__id = int(id))
                 target = User.objects.get(id = id)
-            elif mode == "node":
-                canvas_list = canvas_list.filter(parent__id = int(id))
+            else:
                 target = CanvasNode.objects.get(id = id)
+                if mode == "branch":
+                    canvas_list = target.children.all()
+                elif mode == "subtree":
+                    canvas_list = target.get_descendants().all()
+        # Get all root nodes
         else:
             canvas_list = canvas_list.filter(parent=None)
+        canvas_list = canvas_list.annotate(num_watchers = Count('watched_users'))
+        canvas_list = canvas_list.order_by(""+primary_sort).distinct()
         data = {
             'canvases' : canvas_list,
             'browse_settings': {'mode': ("/"+ mode), 'id': ("/" + id), 'sort': ("/" + sort)},
@@ -60,6 +70,7 @@ def dashboard_page(request, sort, mode, id ):
         }
         return render(request, "doops/dashboard.html", data)
     return redirect('/')
+
 def settings_page(request,id):
     return render(request, "doops/settings.html")
 
@@ -117,22 +128,36 @@ def submit_process(request, node_id):
             if parent_list:
                 parent = parent_list[0]
     
-        CanvasNode.objects.create(
+        new_canvas = CanvasNode.objects.create(
             data_url = request.POST['data_url'],
             poster = User.objects.get(id=request.session['id']),
             parent = parent
         )
+        if parent:
+            return redirect('/dashboard/new/branch/' + str(parent.id))
+
     return redirect('/')
+
 
 def watch_process(request, node_id):
     if 'id' in request.session:
-        
         canvas_list = CanvasNode.objects.filter(id=int(node_id))
         if canvas_list:
             canvas = canvas_list[0]
-        this_user = User.objects.get(id=request.session['id'])
-        canvas.watched_users.add(this_user)
-        print(canvas.watched_users.all())
+            this_user = User.objects.get(id=request.session['id'])
+            canvas.watched_users.add(this_user)
+
+            change_list = []
+            walker = canvas
+            while  walker != None:
+                change_list.append({'id': walker.id, 'total_watch_num': walker.total_watches()})
+                walker = walker.parent
+            response = {
+                'target_watch': canvas.watched_users.all().count(),
+                'change_list': change_list,
+                'user_watch': this_user.watched_canvases.all().count()
+            }
+            return JsonResponse(response)
     return redirect('/')
 
 

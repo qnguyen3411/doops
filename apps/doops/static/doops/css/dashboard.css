@@ -20,7 +20,6 @@ body{    background-color: rgb(48, 48, 38);
 img{
     width: 100%;
     height:auto;
-    cursor: pointer;
 }
 
 a:hover{
@@ -43,6 +42,14 @@ li:hover{
     background-color: rgb(149, 165, 152);
 }
 
+.watch-button:hover{
+    color: rgb(177, 201, 71);  
+    font-weight:bold;
+}
+.watch-button{
+
+    cursor: pointer;
+}
 #header-box{
     height:60px;
     box-shadow: 0 3px 3px rgba(48, 48, 38,.5);
@@ -83,9 +90,9 @@ li:hover{
 .text-neutral{color:rgb(175, 177, 167) }
 
 
-.text-lightgreen{color: rgb(194, 221, 75);}
+.text-lightgreen{color: rgb(205, 236, 68);}
 .text-disabled{color: rgb(97, 102, 75)}
-.bg-neutral{background-color: rgb(165, 179, 169)}
+.bg-neutral{background-color: rgb(161, 170, 153)}
 .bg-disabled{background-color: rgb(108, 110, 97)}
 .bg-darkgreen{background-color: rgb(95, 117, 94)}
 
