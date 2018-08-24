@@ -20,7 +20,7 @@ class UserManager(models.Manager):
             }
         else:
             cleanData = {
-                'username' : postData['first_name'].strip(),
+                'username' : postData['username'].strip(),
                 'email' : postData['email'].strip().lower(),
             }
         return cleanData

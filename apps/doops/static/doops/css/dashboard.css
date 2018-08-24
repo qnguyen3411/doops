@@ -63,12 +63,7 @@ li{
     color: rgb(201, 241, 19);  
     font-weight:bold;
 }
-#notifications ul {
-    transform: rotate(180deg);
-}
-#notifications ul > li {
-    transform: rotate(-180deg);
-}
+
 
 .notification-close:hover{
     background-color: rgb(80, 78, 69);
@@ -82,7 +77,7 @@ li{
 
 .watch-button, .notification-button{
 
-    cursor: pointer;
+    cursor: ointer;
 }
 #header-box{
     height:60px;

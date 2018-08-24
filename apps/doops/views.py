@@ -90,7 +90,6 @@ def register_process(request):
                 + User.objects.validate_email(postData) 
                 + User.objects.validate_password(postData, min_length=8)
                 )
-
         if len(errors):
             for error in errors:
                 messages.error(request,error['message'], extra_tags=error['tag'])
@@ -124,6 +123,41 @@ def login_process(request):
             
             messages.error(request, "Email/Password invalid", extra_tags='login')
     
+    return redirect('/')
+
+def update_info(request):
+    if request.method == 'POST' and 'id' in request.session:
+        check_unique = True
+        postData = User.objects.clean_input(request.POST, form_edit=True)
+        this_user = User.objects.get(id = request.session['id'])
+        if postData['email'] == this_user.email:
+            check_unique = False
+
+        errors = (User.objects.validate_email(postData, check_unique=check_unique) 
+        + User.objects.validate_name(postData, min_length=2))
+        if len(errors):
+            for error in errors:
+                messages.error(request,error['message'], extra_tags=error['tag'])
+        else:
+            this_user.username = postData['username']
+            this_user.email = postData['email']
+            this_user.save()
+        return redirect('/users/'+str(this_user.id)+'/settings')
+    return redirect('/')
+
+def update_pw(request):
+    if request.method == 'POST' and 'id' in request.session:
+        this_user = User.objects.get(id = request.session['id'])
+        if bcrypt.checkpw(request.POST['password'].encode(), this_user.password_hash.encode()):
+            errors = (User.objects.password(request.POST))
+            if len(errors):
+                for error in errors:
+                    messages.error(request,error['message'], extra_tags=error['tag'])
+            else:
+                pw_hash = bcrypt.hashpw(postData['password'].encode(), bcrypt.gensalt())
+                this_user.password_hash = pw_hash
+                this_user.save()
+            return redirect('/users/'+str(this_user.id)+'/settings')
     return redirect('/')
 
 def submit_process(request, node_id):
@@ -180,11 +214,15 @@ def watch_process(request, node_id):
 
 def random_process(request):
     canvas_list = CanvasNode.objects.all()
-    rand_index = randint(0,len(canvas_list))
+    rand_index = randint(0,len(canvas_list) - 1)
     return redirect('/dashboard/new/branch/'+ str(canvas_list[rand_index].id))
 
-# def get_notifications(request):
-#     if 'id' in request.session:
+def get_notifications(request):
+    if 'id' in request.session:
+        noti_list = Notification.objects.filter(notified_user__id = request.session['id']).order_by('-id')
+        return JsonResponse({'noti_list': list(noti_list.values())})
+    return redirect('/')
+
 @csrf_exempt
 def clear_notification(request):
     user_id = int(request.POST['user_id'])
@@ -193,7 +231,7 @@ def clear_notification(request):
         noti_list = Notification.objects.filter(id=noti_id)
         if noti_list and noti_list[0].notified_user.id == user_id:
             noti_list[0].delete()
-    return HttpResponse("EYYYO")
+    return HttpResponse("")
 
 def logout_process(request):
     request.session.clear()

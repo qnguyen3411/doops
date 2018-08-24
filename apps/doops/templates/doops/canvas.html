@@ -13,19 +13,27 @@
     {% load static %}
     <link rel="stylesheet" media="screen" href="{% static "doops/css/canvas.css" %}" />
     <script src="{% static "doops/js/canvas.js" %}"></script>
+    <script src="{% static "doops/js/topnav.js" %}"></script>
 </head>
 <body class="bg-dark-green pt-1">
         <div class="draw-cursor rounded-circle border border-dark" ></div>
-        <h6 class="top-nav text-disabled col-12 pt-2">
+        <div id="notifications" class="card">
+            <ul class="list-group small">
+            </ul>
+        </div>
+            
+        <h6 class="top-nav text-disabled col-12 mx-auto pt-2 text-center" style="position: sticky; top: 0; z-index:4;">
             <strong >
-            <a class="mx-1 text-disabled" href="/users/1/settings">{{self.username}} </a></strong> |
+            <a class="mx-1 text-disabled" href="/dashboard">Home </a></strong> |
+            <span  class="notification-button mx-1 text-disabled small" >
+                {{self.user_notifications.all.count}} Notifications </span>|
             <span userID="{{self.id}}">
-            <a class=" mx-1 text-disabled small" href="/dashboard{{browse_settings.sort}}/post/{{self.id}}">{{self.posted_canvases.all.count}} Posted </a>|
+            <a class=" mx-1 text-disabled small" href="/dashboard{{browse_settings.sort}}/post/{{self.id}}">
+                {{self.posted_canvases.all.count}} Posted </a>|
             <a id="self-numwatch" class=" mx-1 text-disabled small" href="/dashboard{{browse_settings.sort}}/watch/{{self.id}}">
                 {{self.watched_canvases.all.count}} Watches 
             </a>|
             </span>
-    
             <a class="mx-1 text-disabled small" href="/users/{{self.id}}/settings">Settings </a>|
             <a class="mx-1 text-disabled small" href="/logout"> Log out</a>
         </h6>

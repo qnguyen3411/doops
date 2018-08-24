@@ -25,34 +25,5 @@ $( document ).ready(function() {
             }
         })//end ajax
     }); //end watch button listener
-    $('.notification-button').click(function(e){
-        console.log(e.clientX)
-        console.log(e.clientY)
-        $('#notifications').css('top', e.clientY + 10 + $(window).scrollTop())
-            .css('left', e.clientX + $(window).scrollLeft())
-            .toggle()
-    })
-
-    $('#notifications li').click(function(){
-        self_id = $(this).attr('selfID')
-        noti_id = $(this).attr('notiID')
-        console.log(self_id, noti_id)
-        $.ajax({
-            method: "POST",
-            url: "/clear_notification",
-            data: {
-                user_id: self_id,
-                noti_id: noti_id,
-            },
-            success: function(resp){
-                console.log(resp)
-            }
-        })
-        $(this).remove()
-
-    })
-    $(window).scroll(function(){
-        $('#notifications').hide()
-    })
-    $('#notifications').hide()
+    
 });

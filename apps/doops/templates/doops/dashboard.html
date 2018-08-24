@@ -13,39 +13,17 @@
     {% load static %}
     <link rel="stylesheet" media="screen" href="{% static "doops/css/dashboard.css" %}" />
     <script src="{% static "doops/js/dashboard.js" %}"></script>
+    <script src="{% static "doops/js/topnav.js" %}"></script>
 </head>
 <body class="pt-1">
     <div id="notifications" class="card">
-        {% if self.user_notifications.all %}
         <ul class="list-group small">
-            {% for notification in self.user_notifications.all %}
-            <li selfID={{self.id}} notiID={{notification.id}}  class="notification list-group-item small bg-dark-green p-0 d-flex">
-                <a class="text-disabled d-block col-11 notification-go p-0"
-                 href="/dashboard/new/branch/{{notification.new_canvas.id}}">
-                    <div class="col-12 p-1">
-                    {% if notification.user_status == 'P' %}
-                    Somebody branched from your drawing!
-                    {% else %}
-                    Somebody branched on a node you watch!
-                    {% endif %}
-                    <i class="fas fa-arrow-right"></i>
-                    </div>
-                </a>
-                <div class="notification-close col-1 py-1 text-disabled">
-                <i class="fas fa-times"></i>
-                </div>
-            </li>
-            {% endfor %}
-        {% else %}
-        <div class="bg-dark-green text-neutral small px-2">
-        No notifications here!
-        </div>
-        {% endif %}
         </ul>
     </div>
+    
     <h6 class="top-nav text-disabled col-12 mx-auto pt-2 text-center" style="position: sticky; top: 0; z-index:4;">
         <strong >
-        <a class="mx-1 text-disabled" href="/users/1/settings">{{self.username}} </a></strong> |
+        <a class="mx-1 text-disabled" href="/dashboard">Home </a></strong> |
         <span  class="notification-button mx-1 text-disabled small" >
             {{self.user_notifications.all.count}} Notifications </span>|
         <span userID="{{self.id}}">
@@ -55,7 +33,6 @@
             {{self.watched_canvases.all.count}} Watches 
         </a>|
         </span>
-
         <a class="mx-1 text-disabled small" href="/users/{{self.id}}/settings">Settings </a>|
         <a class="mx-1 text-disabled small" href="/logout"> Log out</a>
     </h6>
@@ -126,7 +103,7 @@
                             Gen : <strong>{{target.get_generation}}<span class="text-lightgreen">(Parent)</span> </strong>|
                             <a class="text-disabled" href="/dashboard{{browse_settings.sort}}/branch/{{target.id}}" ><strong>{{target.children.all.count}}</strong> branches</a>|
                             <a class="text-disabled" href="/dashboard{{browse_settings.sort}}/subtree/{{target.id}}"><strong>{{target.num_descendants}}</strong> descendants</a>|
-                            <div canvasID="{{canvas.id}}" class="{% if self in target.watched_users.all %}text-lightgreen{%else%}text-disabled{% endif %} d-inline watch-button">
+                            <div canvasID="{{target.id}}" class="{% if self in target.watched_users.all %}text-lightgreen{%else%}text-disabled{% endif %} d-inline watch-button">
                                 <span class="font-weight-bold watches">{{target.watched_users.all.count}}</span>
                                 watches (<span class="font-weight-bold total-watches">{{target.total_watches}}</span> total)
                             </div> 
@@ -139,7 +116,7 @@
                     <img class=" browse-settings node rounded " src="{{target.data_url}}" alt="">
                     <div class=" p-1 m-0 text-warm-dark d-flex justify-content-between">
                         <div class="d-inline-block">
-                            {% if canvas.get_generation != 0 %}
+                            {% if target.get_generation != 0 %}
                             <a class="text-disabled" href="/dashboard{{browse_settings.sort}}/branch/{{target.parent.id}}"><i class="fas fa-arrow-left mx-1"></i><small>To parent</small></a> |
                             {% endif %}
                             <a class="text-disabled" href="/dashboard{{browse_settings.sort}}/branch/{{target.id}}"><small>To branches</small><i class="fas fa-arrow-right mx-1"></i></a>
