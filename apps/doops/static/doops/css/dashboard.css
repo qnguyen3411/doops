@@ -31,15 +31,8 @@ img{
     height:auto;
 }
 
-a:hover{
-    color: rgb(201, 241, 19);
-    text-decoration: none;
-    font-weight: bold;
-}
 
-.notify-icon i:hover{
-    font-size: 15px;
-}
+
 .selected{
     border: 2px solid rgb(201, 241, 19);
     color: rgb(177, 201, 71);    
@@ -48,21 +41,25 @@ a:hover{
     padding-right:5px;
 }
 
+a:hover{
+    color: rgb(201, 241, 19);
+    text-decoration: none;
+    font-weight: bold;
+}
+.link:hover{
+    color: rgb(201, 241, 19);  
+    font-weight:bold;
+    cursor: pointer;
+}
+
 li{
     transition:0.3s;
 }
+
 #dashboard_window li:hover{
     background-color: rgb(80, 78, 69)
 }
 
-.watch-button:hover{
-    color: rgb(201, 241, 19);  
-    font-weight:bold;
-}
-.notification-button:hover{
-    color: rgb(201, 241, 19);  
-    font-weight:bold;
-}
 
 
 .notification-close:hover{
@@ -92,7 +89,7 @@ li{
     width:80px;
 }
 #vertical_nav li:hover{
-    background-color: rgb(80, 78, 69);
+    background-color: rgb(62, 66, 60);
     color: rgb(201, 241, 19);
     font-weight: bold;
 }
@@ -107,20 +104,15 @@ li{
     
 }
 
-.top-nav i:hover {
-    color: rgb(201, 241, 19);
-    cursor: pointer;
-}
-
 
 .text-warm-dark{color: rgb(65, 60, 46)}
 .bg-dark-green{background-color: rgb(48, 48, 38)}
 .text-darkgreen{color: rgb(114, 133, 69)}
-.text-neutral{color:rgb(189, 182, 164) }
+.text-neutral{color:rgb(198, 192, 201) }
 .bg-grey{background-color: rgb(220, 224, 215);}
 
 .text-lightgreen{color: rgb(201, 241, 19);}
-.text-disabled{color: rgb(206, 196, 178)}
+.text-disabled{color:rgb(208, 204, 209)}
 .bg-neutral{background-color: rgb(95, 93, 83)}
 .bg-disabled{background-color: rgb(77, 85, 75)}
 .bg-darkgreen{background-color: rgb(95, 117, 94)}

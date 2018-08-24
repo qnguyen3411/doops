@@ -106,6 +106,12 @@ class CanvasNode(models.Model):
             return 0
         return (self.parent.get_generation() + 1)
 
+    def get_ancestors(self):
+        if self.parent == None:
+            return CanvasNode.objects.filter(id = self.id)
+        return (self.parent.get_ancestors() | CanvasNode.objects.filter(id = self.id))
+
+
 class Notification(models.Model):
     POSTER = 'P'
     WATCHER = 'W'

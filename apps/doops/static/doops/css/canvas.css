@@ -3,6 +3,12 @@ body{
     background-color: rgb(48, 48, 38);
     height:100%;
 }
+
+#notifications{
+    position: absolute; top:0px; left:0px;
+    z-index: 5;
+    width: 350px;
+}
 #botCanvas{
     width: 600px;
     height:400px;
@@ -71,8 +77,15 @@ body{
 a:hover{
     color: rgb(177, 201, 71);
     text-decoration: none;
+    font-weight:bold;
     border-radius: 5px;
 }
+.link:hover{
+    color: rgb(201, 241, 19);  
+    font-weight:bold;
+    cursor: pointer;
+}
+
 a{
     transition:0.3s;
 }
@@ -110,14 +123,15 @@ div.sticky:hover{background-color: rgb(96, 102, 67);}
 .text-neutral{
     color: rgb(175, 177, 167)
 }
+
 .text-warm-dark{color: rgb(65, 60, 46)}
 .bg-dark-green{background-color: rgb(48, 48, 38)}
 .text-darkgreen{color: rgb(114, 133, 69)}
-.text-neutral{color:rgb(189, 182, 164) }
+.text-neutral{color:rgb(198, 192, 201) }
 .bg-grey{background-color: rgb(220, 224, 215);}
 
 .text-lightgreen{color: rgb(201, 241, 19);}
-.text-disabled{color: rgb(206, 196, 178)}
+.text-disabled{color:rgb(208, 204, 209)}
 .bg-neutral{background-color: rgb(95, 93, 83)}
 .bg-disabled{background-color: rgb(77, 85, 75)}
 .bg-darkgreen{background-color: rgb(95, 117, 94)}
