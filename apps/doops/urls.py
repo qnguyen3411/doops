@@ -13,6 +13,7 @@ urlpatterns = [
     url(r'^update_info$', views.update_info),
     url(r'^update_pw$', views.update_pw),
     url(r'^submit_process/(?P<node_id>\d+)$', views.submit_process),
+    url(r'^delete_canvas/(?P<node_id>\d+)$', views.delete_canvas),
     url(r'^random_process$', views.random_process),
     url(r'^get_notifications$', views.get_notifications),
     url(r'^clear_notification$', views.clear_notification),
