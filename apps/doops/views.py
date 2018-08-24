@@ -1,11 +1,11 @@
+from random import randint
 from django.shortcuts import render, HttpResponse, redirect
 from django.contrib import messages
 from django.views.decorators.csrf import csrf_exempt
 from django.core import serializers
-from django.db.models import Count, Case, When, Value, IntegerField
+from django.db.models import Count, F
 from django.db.models.functions import Length
 from django.http import JsonResponse
-from django.db.models import F
 import json
 import bcrypt
 from .models import *
@@ -24,7 +24,8 @@ def canvas_page(request, node_id=0):
             data['parent'] = canv_list[0]
         else:
             data['isRoot'] = True;
-    
+    if 'id' in request.session:
+        data['self'] = User.objects.get(id=request.session['id'])
     return render(request, "doops/canvas.html", data)
 
 """ Performs filters based on specifications
@@ -43,13 +44,12 @@ def dashboard_page(request, sort, mode, id ):
             primary_sort = "-id"
             secondary_sort = "-num_watchers"
 
-        canvas_list = CanvasNode.objects.all()
         if id != "":
             if mode == "post":
-                canvas_list = canvas_list.filter(poster__id = int(id))
+                canvas_list = CanvasNode.objects.filter(poster__id = int(id))
                 target = User.objects.get(id = id)
             elif mode == "watch":
-                canvas_list = canvas_list.filter(watched_users__id = int(id))
+                canvas_list = CanvasNode.objects.filter(watched_users__id = int(id))
                 target = User.objects.get(id = id)
             else:
                 target = CanvasNode.objects.get(id = id)
@@ -59,7 +59,7 @@ def dashboard_page(request, sort, mode, id ):
                     canvas_list = target.get_descendants().all()
         # Get all root nodes
         else:
-            canvas_list = canvas_list.filter(parent=None)
+            canvas_list = CanvasNode.objects.filter(parent=None)
         canvas_list = canvas_list.annotate(num_watchers = Count('watched_users'))
         canvas_list = canvas_list.order_by(""+primary_sort).distinct()
         data = {
@@ -72,7 +72,10 @@ def dashboard_page(request, sort, mode, id ):
     return redirect('/')
 
 def settings_page(request,id):
-    return render(request, "doops/settings.html")
+    if 'id' in request.session:
+        this_user = User.objects.get(id=id)
+    data = {'self': this_user}
+    return render(request, "doops/settings.html", data)
 
 
 def register_process(request):
@@ -159,6 +162,11 @@ def watch_process(request, node_id):
             }
             return JsonResponse(response)
     return redirect('/')
+
+def random_process(request):
+    canvas_list = CanvasNode.objects.all()
+    rand_index = randint(0,len(canvas_list))
+    return redirect('/dashboard/new/branch/'+ str(canvas_list[rand_index].id))
 
 
 def logout_process(request):

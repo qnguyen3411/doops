@@ -169,8 +169,8 @@ $( document ).ready(function() {
     
     $('.tool-settings').click(function(){
         var link = $(this).attr('link')
-        $(this).parent().children().removeClass('selected')
-        $(this).addClass('selected')
+        $(this).parent().children().removeClass('selected text-lightgreen'). addClass('text-disabled')
+        $(this).addClass('selected text-lightgreen').removeClass('text-disabled')
         $('#color-tool').children().hide()
         $(link).fadeIn()
     })

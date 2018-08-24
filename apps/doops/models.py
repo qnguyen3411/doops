@@ -105,3 +105,19 @@ class CanvasNode(models.Model):
         if self.parent == None:
             return 0
         return (self.parent.get_generation() + 1)
+
+class Notification(models.Model):
+    POSTER = 'P'
+    WATCHER = 'W'
+    USER_STATUS_CHOICES = (
+        (POSTER, 'Poster'),
+        (WATCHER, 'Watcher')
+    )
+    notified_user = models.ForeignKey(User, related_name="user_notifications")
+    canvas = models.ForeignKey(CanvasNode, related_name="canvas_notifications")
+    user_status = models.CharField(
+        max_length=1,
+        choices= USER_STATUS_CHOICES,
+        default=POSTER)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)

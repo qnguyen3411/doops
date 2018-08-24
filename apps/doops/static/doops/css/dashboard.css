@@ -8,42 +8,47 @@
     min-height: calc(100vh - 20px);
     text-align: center;
     font-style: serif;
-    width: 550px;
+    width: 580px;
 }
 #maincontainer{
-    min-width: 630px;
+    min-width: 660px;
+}
+#header-box{
+    background-color: rgba(64, 71, 63, 1)
 }
 
 body{    background-color: rgb(48, 48, 38);
 }
 
 img{
-    width: 100%;
+    width: 95%;
     height:auto;
 }
 
 a:hover{
-    color: rgb(177, 201, 71);
+    color: rgb(201, 241, 19);
     text-decoration: none;
     font-weight: bold;
 }
 
 
 .selected{
-    border: 2px solid rgb(177, 201, 71);
+    border: 2px solid rgb(201, 241, 19);
     color: rgb(177, 201, 71);    
     border-radius: 5px;
+    padding-left:5px;
+    padding-right:5px;
 }
 
 li{
     transition:0.3s;
 }
 li:hover{
-    background-color: rgb(149, 165, 152);
+    background-color: rgb(80, 78, 69)
 }
 
 .watch-button:hover{
-    color: rgb(177, 201, 71);  
+    color: rgb(201, 241, 19);  
     font-weight:bold;
 }
 .watch-button{
@@ -64,7 +69,7 @@ li:hover{
 }
 #vertical_nav li:hover{
     background-color: rgb(92, 95, 83);
-    color: rgb(177, 201, 71);
+    color: rgb(201, 241, 19);
     font-weight: bold;
 }
 #vertical_nav li{
@@ -79,7 +84,7 @@ li:hover{
 }
 
 .top-nav i:hover {
-    color: rgb(177, 201, 71);
+    color: rgb(201, 241, 19);
     cursor: pointer;
 }
 
@@ -87,12 +92,12 @@ li:hover{
 .text-warm-dark{color: rgb(65, 60, 46)}
 .bg-dark-green{background-color: rgb(48, 48, 38)}
 .text-darkgreen{color: rgb(114, 133, 69)}
-.text-neutral{color:rgb(175, 177, 167) }
+.text-neutral{color:rgb(189, 182, 164) }
+.bg-grey{background-color: rgb(220, 224, 215);}
 
-
-.text-lightgreen{color: rgb(205, 236, 68);}
-.text-disabled{color: rgb(97, 102, 75)}
-.bg-neutral{background-color: rgb(161, 170, 153)}
-.bg-disabled{background-color: rgb(108, 110, 97)}
+.text-lightgreen{color: rgb(201, 241, 19);}
+.text-disabled{color: rgb(206, 196, 178)}
+.bg-neutral{background-color: rgb(95, 93, 83)}
+.bg-disabled{background-color: rgb(77, 85, 75)}
 .bg-darkgreen{background-color: rgb(95, 117, 94)}
 

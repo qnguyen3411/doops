@@ -9,7 +9,7 @@ body{
 }
 #topCanvas{
     opacity: 0;
-    position: absolute; top:39px; left:24px;
+    position: absolute; top:41px; left:24px;
     cursor: none;
 }
 #maincontainer{
@@ -112,12 +112,13 @@ div.sticky:hover{background-color: rgb(96, 102, 67);}
 }
 .text-warm-dark{color: rgb(65, 60, 46)}
 .bg-dark-green{background-color: rgb(48, 48, 38)}
-.text-darkgreen{color: rgb(82, 104, 61)}
-.text-neutral{color:rgb(175, 177, 167) }
+.text-darkgreen{color: rgb(114, 133, 69)}
+.text-neutral{color:rgb(189, 182, 164) }
+.bg-grey{background-color: rgb(220, 224, 215);}
 
-
-.text-lightgreen{color: rgb(194, 221, 75);}
-.text-disabled{color: rgb(97, 102, 75)}
-.bg-neutral{background-color: rgb(165, 179, 169)}
-.bg-disabled{background-color: rgb(108, 110, 97)}
+.text-lightgreen{color: rgb(201, 241, 19);}
+.text-disabled{color: rgb(206, 196, 178)}
+.bg-neutral{background-color: rgb(95, 93, 83)}
+.bg-disabled{background-color: rgb(77, 85, 75)}
 .bg-darkgreen{background-color: rgb(95, 117, 94)}
+
