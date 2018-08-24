@@ -12,6 +12,7 @@ urlpatterns = [
     url(r'^register_process$', views.register_process),
     url(r'^submit_process/(?P<node_id>\d+)$', views.submit_process),
     url(r'^random_process$', views.random_process),
+    url(r'^clear_notification$', views.clear_notification),
     url(r'^watch/(?P<node_id>\d+)$', views.watch_process),
 
     url(r'^logout$', views.logout_process),

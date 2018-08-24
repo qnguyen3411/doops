@@ -15,12 +15,39 @@
     <script src="{% static "doops/js/dashboard.js" %}"></script>
 </head>
 <body class="pt-1">
-    
+    <div id="notifications" class="card">
+        {% if self.user_notifications.all %}
+        <ul class="list-group small">
+            {% for notification in self.user_notifications.all %}
+            <li selfID={{self.id}} notiID={{notification.id}}  class="notification list-group-item small bg-dark-green p-0 d-flex">
+                <a class="text-disabled d-block col-11 notification-go p-0"
+                 href="/dashboard/new/branch/{{notification.new_canvas.id}}">
+                    <div class="col-12 p-1">
+                    {% if notification.user_status == 'P' %}
+                    Somebody branched from your drawing!
+                    {% else %}
+                    Somebody branched on a node you watch!
+                    {% endif %}
+                    <i class="fas fa-arrow-right"></i>
+                    </div>
+                </a>
+                <div class="notification-close col-1 py-1 text-disabled">
+                <i class="fas fa-times"></i>
+                </div>
+            </li>
+            {% endfor %}
+        {% else %}
+        <div class="bg-dark-green text-neutral small px-2">
+        No notifications here!
+        </div>
+        {% endif %}
+        </ul>
+    </div>
     <h6 class="top-nav text-disabled col-12 mx-auto pt-2 text-center" style="position: sticky; top: 0; z-index:4;">
         <strong >
         <a class="mx-1 text-disabled" href="/users/1/settings">{{self.username}} </a></strong> |
-        <a class=" mx-1 text-disabled small" href="/dashboard{{browse_settings.sort}}/post/{{self.id}}">
-            {{self.posted_canvases.all.count}} Notifications </a>|
+        <span  class="notification-button mx-1 text-disabled small" >
+            {{self.user_notifications.all.count}} Notifications </span>|
         <span userID="{{self.id}}">
         <a class=" mx-1 text-disabled small" href="/dashboard{{browse_settings.sort}}/post/{{self.id}}">
             {{self.posted_canvases.all.count}} Posted </a>|
@@ -36,19 +63,19 @@
     <div id="maincontainer" class="row p-0 mx-0 mt-2">
         <div id="vertical_nav" class=" ml-auto px-0 border-0" >
             <ul class="list-group text-lightgreen mr-1">
-                <li class="list-group-item bg-disabled border-0 text-center rounded mt-1 p-1" >
+                <li class="list-group-item bg-disabled border-light text-center rounded mt-1 p-1" >
                     <a class="text-lightgreen" href="/dashboard">
                         <i class="fas fa-tree"></i>
                         <p class="small m-0">Root</p>
                     </a>
                 </li>
-                <li class="list-group-item bg-disabled border-0 text-center rounded mt-1 p-1" >
+                <li class="list-group-item bg-disabled border-light text-center rounded mt-1 p-1" >
                     <a class="text-lightgreen" href="/random_process">
                         <i class="fas fa-dice"></i>
                         <p class="small m-0">Random</p>
                     </a>
                 </li>
-                <li class="list-group-item bg-disabled border-0 text-center rounded mt-1 p-1" >
+                <li class="list-group-item bg-disabled border-light text-center rounded mt-1 p-1" >
                     <a class="text-lightgreen" href="/canvas">
                         <i class="fas fa-palette"></i>
                         <p class="small m-0">New</p>
@@ -58,7 +85,7 @@
         </div>
 
         <div id="dashboard_window" class="card mr-auto bg-transparent px-0 border-0 mt-1">
-            <div id="header-box" class="sticky rounded" style="position: sticky; top: 40px; z-index:4;">
+            <div id="header-box" class="sticky rounded border border-light" style="position: sticky; top: 40px; z-index:4;">
                 <h6 class="pl-3 py-2 d-flex mx-1 my-0 text-neutral">
                         <div>
                         {% if browse_settings.mode == '/branch' %}

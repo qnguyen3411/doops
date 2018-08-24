@@ -9,6 +9,9 @@ from django.http import JsonResponse
 import json
 import bcrypt
 from .models import *
+
+POSTER = 'P'
+WATCHER = 'W'
 # Create your views here.
 def index(request):
     if 'id' in  request.session:
@@ -78,6 +81,7 @@ def settings_page(request,id):
     return render(request, "doops/settings.html", data)
 
 
+
 def register_process(request):
     if request.method == 'POST':
         postData = User.objects.clean_input(request.POST, form_register=True)
@@ -136,7 +140,18 @@ def submit_process(request, node_id):
             poster = User.objects.get(id=request.session['id']),
             parent = parent
         )
+
         if parent:
+            Notification.objects.create(
+                notified_user = parent.poster,
+                new_canvas = new_canvas
+            )
+            for watcher in parent.watched_users.all():
+                Notification.objects.create(
+                notified_user = watcher,
+                new_canvas = new_canvas,
+                user_status = WATCHER
+                )
             return redirect('/dashboard/new/branch/' + str(parent.id))
 
     return redirect('/')
@@ -168,6 +183,17 @@ def random_process(request):
     rand_index = randint(0,len(canvas_list))
     return redirect('/dashboard/new/branch/'+ str(canvas_list[rand_index].id))
 
+# def get_notifications(request):
+#     if 'id' in request.session:
+@csrf_exempt
+def clear_notification(request):
+    user_id = int(request.POST['user_id'])
+    noti_id = int(request.POST['noti_id'])
+    if user_id == request.session['id']:
+        noti_list = Notification.objects.filter(id=noti_id)
+        if noti_list and noti_list[0].notified_user.id == user_id:
+            noti_list[0].delete()
+    return HttpResponse("EYYYO")
 
 def logout_process(request):
     request.session.clear()

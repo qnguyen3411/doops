@@ -9,7 +9,7 @@ body{
 }
 #topCanvas{
     opacity: 0;
-    position: absolute; top:41px; left:24px;
+    position: absolute;
     cursor: none;
 }
 #maincontainer{

@@ -1,109 +1,114 @@
 
 $( document ).ready(function() {
-    // Tab functionalities;
-    function handler1() {
-        $('#nav-menu a').css('width', 70);
-        $(this).one("click", handler2);
-    }
-    function handler2() {
-        $('#nav-menu a').css('width', 0);
-        $(this).one("click", handler1);
-    }
-    $("#menu-icon").one("click", handler1);
 
-    var canvas = document.getElementById('botCanvas');
+    var canvas = $('#botCanvas').get(0);
     var ctx = canvas.getContext("2d");
-    var canv_offset = getOffset(canvas);
+    var canv_offset = $(canvas).offset();
     var prevX = 0;
     var currX = 0;
     var prevY = 0;
     var currY = 0;
+    var pinX = 0;
+    var pinY = 0;
     var flag = false;
-    var dot_flag = false;
-    var overlay = document.getElementById('topCanvas');
-    var ovl_ctx = overlay.getContext("2d")
-    var start_img = document.getElementById('start_img')
+    var overlay = $('#topCanvas').get(0);
+    var ovl_ctx = overlay.getContext("2d");
+    var start_img = $('#start_img').get(0);
     ctx.drawImage(start_img, 0, 0, canvas.width, canvas.height)
     ovl_ctx.drawImage(start_img, 0, 0, canvas.width, canvas.height)
 
-    var pallete = document.getElementById('pallete');
+    var pallete = $('#pallete').get(0);
     var pal_ctx = pallete.getContext("2d");
-    var pal_img = document.getElementById('pallete_img')
-    var pal_offset = getOffset(pallete);
+    var pal_img = $('#pallete_img').get(0)
+    var pal_offset = $(pallete).offset();
     pal_ctx.drawImage(pal_img, 0, 0, pallete.width, pallete.height)
     
     var curr_tool = "pen";
-    var color = "black";
+    color = "black";
     var opacity = 1.0;
     var size = 1;
+    
+
     //Canvas functionality
     $( '.canvas-container' )
+        .mouseenter(function(){
+            $('.draw-cursor').show()
+        })
         .mousedown(function(e) {
             prevX = currX;
             prevY = currY;
-            currX = e.clientX + $(window).scrollLeft() - canv_offset.left;
-            currY = e.clientY + $(window).scrollTop() - canv_offset.top ;
-            flag = true
-            dot_flag = true;
-            if (dot_flag) {
-                if(curr_tool == "eyedropper"){
-                    imgData = ctx.getImageData(currX, currY, 1,1);
-                    update_color("rgb",imgData.data[0],imgData.data[1],imgData.data[2]);    
-                }else{
-                    if(curr_tool == "pen" ){
-                        ctx.fillStyle = color;
-                    }else{
-                        ctx.fillStyle = "white";
-                    }
-                    ctx.beginPath();
-                    ctx.arc(e.clientX + $(window).scrollLeft() - canv_offset.left,
-                    e.clientY + $(window).scrollTop() - canv_offset.top,
-                    size/2, 0, 2 * Math.PI, false);
-                    ctx.fill()
-                    ctx.closePath();
-                    dot_flag = false;
-                }
+            currX = e.pageX - canv_offset.left;
+            currY = e.pageY - canv_offset.top;
+            flag = true;
+            
+            if(curr_tool == "eyedropper"){
+                imgData = ctx.getImageData(currX, currY, 1,1);
+                update_color("rgb",imgData.data[0],imgData.data[1],imgData.data[2]);    
+            }else if(curr_tool == "ruler"){
+                pinX =currX
+                pinY = currY
+                console.log("mousedown")
+            }else{
+                draw(dot=true)
             }
         })
         .mouseup(function(e) {
             flag = false;
+            ctx.closePath()
             merge();
         })
         .mouseleave(function(e){
             flag = false;
-            $('.draw-cursor').hide()
+            ctx.closePath()
+            $('.draw-cursor').hide();
             merge();
         })
         .mousemove(function(e){
             if (flag) {
                 prevX = currX;
                 prevY = currY;
-                currX = e.clientX + $(window).scrollLeft() - canv_offset.left;
-                currY = e.clientY + $(window).scrollTop() - canv_offset.top;
+                currX = e.pageX - canv_offset.left;
+                currY = e.pageY - canv_offset.top;
+                if(curr_tool != "eraser" ){
+                    ctx.strokeStyle = color;
+                }else{
+                    ctx.strokeStyle = "white";
+                }
+                ctx.lineCap="round";
+                ctx.lineWidth = size;
                 if(curr_tool == "eyedropper"){
                     imgData = ctx.getImageData(currX, currY, 1,1);
-                    update_color("rgb",imgData.data[0],imgData.data[1],imgData.data[2]);    
+                    update_color("rgb",imgData.data[0],imgData.data[1],imgData.data[2]);
+                }else if(curr_tool == "ruler"){
+                    drawLine()
                 }else{
                     draw();
                 }
             }
-            $('.draw-cursor').show()
-                .css('top', (e.clientY - size/2 + $(window).scrollTop() ) + "px")
-                .css('left', (e.clientX - size/2 + $(window).scrollLeft() ) + "px")
+            $('.draw-cursor')
+                .css('top', (e.pageY - size/2  ) + "px")
+                .css('left', (e.pageX - size/2 ) + "px")
         });
-    function draw() {
-        if(curr_tool == "pen" ){
-            ctx.strokeStyle = color;
-        }else{
-            ctx.strokeStyle = "white";
-        }
-        ctx.lineCap="round";
-        ctx.lineWidth = size;
+        
+    function draw(dot=false) {
         ctx.beginPath();
-        ctx.moveTo(prevX, prevY);
-        ctx.lineTo(currX, currY);
-        ctx.stroke();
+        if (dot){
+            ctx.arc(currX, currY,
+                size/2, 0, 2 * Math.PI, false);
+            ctx.fill()
+        }else{
+            ctx.moveTo(prevX, prevY);
+            ctx.lineTo(currX, currY);
+            ctx.stroke();
+        }
         ctx.closePath();
+    }
+    function drawLine(){
+        ctx.drawImage(overlay,0 , 0)
+        ctx.beginPath()  
+        ctx.moveTo(pinX, pinY)
+        ctx.lineTo(currX, currY)
+        ctx.stroke();
     }
     function merge(){
         ctx.globalAlpha = 1.0 - opacity;
@@ -115,8 +120,8 @@ $( document ).ready(function() {
     //Pallete functionality
     $( "#pallete" )
         .mousedown(function(e) {
-            X = e.clientX + $(window).scrollLeft() - pal_offset.left;
-            Y = e.clientY + $(window).scrollTop() - pal_offset.top ;
+            X = e.pageX - pal_offset.left;
+            Y = e.pageY - pal_offset.top ;
             flag = true
             imgData = pal_ctx.getImageData(X, Y, 1,1);
             update_color("rgb",imgData.data[0],imgData.data[1],imgData.data[2])
@@ -129,8 +134,8 @@ $( document ).ready(function() {
         })
         .mousemove(function(e){
             if (flag) {
-                X = e.clientX + $(window).scrollLeft() - pal_offset.left;
-                Y = e.clientY + $(window).scrollTop() - pal_offset.top ;
+                X = e.pageX - pal_offset.left;
+                Y = e.pageY - pal_offset.top ;
                 imgData = pal_ctx.getImageData(X, Y, 1,1);
                 update_color("rgb",imgData.data[0],imgData.data[1],imgData.data[2]);
             }
@@ -138,21 +143,19 @@ $( document ).ready(function() {
 
     //slider functionality
     $('#opa-slider').on("input change",function(){
-        val = this.value
+        var val = this.value
         $('#opa-value').html(val)
         opacity = val / 100
         $('#topCanvas').css('opacity', 1.0 - opacity)
     })
-    
     $('#size-slider').on("input change",function(){
-        val = this.value
+        var val = this.value
         $('#size-value').html(val)
         size = val
         $('.draw-cursor').css('width', size)
         .css('height', size)
     })
 
-    
     $('#rgb input , #hsl input').on("input change",function(){
         if($(this).hasClass('rgb')){
             update_color("rgb",
@@ -176,19 +179,9 @@ $( document ).ready(function() {
     })
 
     //canvas tool functionalities
-    $('.tool.pen').click(function(){
-        curr_tool = "pen"
-        $(this).parent().children().removeClass('selected')
-        $(this).addClass('selected')
-    })
-    $('.tool.eraser').click(function(){
-        curr_tool = "eraser"
-        $(this).parent().children().removeClass('selected')
-        $(this).addClass('selected')
-    })
-
-    $('.tool.eyedropper').click(function(){
-        curr_tool = "eyedropper"
+    $('.tool:not(.clear)').click(function(){
+        curr_tool = $(this).attr('id')
+        console.log(curr_tool)
         $(this).parent().children().removeClass('selected')
         $(this).addClass('selected')
     })
@@ -201,31 +194,20 @@ $( document ).ready(function() {
     })
 
     //helper functions
-    function getOffset( el ) {
-        var _x = 0;
-        var _y = 0;
-        while( el && !isNaN( el.offsetLeft ) && !isNaN( el.offsetTop ) ) {
-            _x += el.offsetLeft - el.scrollLeft;
-            _y += el.offsetTop - el.scrollTop;
-            el = el.offsetParent;
-        }
-        return { top: _y, left: _x };
-    }
-
     function update_color(mode, val1, val2, val3){
         if(mode == "rgb"){
             //update color
             color = "" + mode + "(" + val1 + "," + val2 + "," + val3 + ")"
             //update sliders
-            var rgbBox = document.getElementById('rgb');
+            var rgbBox = $('#rgb').get(0);
             updateSliders(rgbBox, [val1, val2, val3]);
-            var hslBox = document.getElementById('hsl');
+            var hslBox = $('#hsl').get(0);
             updateSliders(hslBox, rgbToHsl(val1, val2, val3));
         }else{
             //update color
             color = "" + mode + "(" + val1 + "," + val2 + "%," + val3 + "%)"
             //update sliders
-            var rgbBox = document.getElementById('rgb');
+            var rgbBox = $('#rgb').get(0);
             updateSliders(rgbBox, hslToRgb(val1, val2, val3));
         }
         $('#curr-color').css('background-color', color);
@@ -290,5 +272,7 @@ $( document ).ready(function() {
     })
     //initialize page
     $('#sliders').hide()
+    canv_pos = $(canvas).position()
+    $(overlay).css('top', canv_pos.top).css('left', canv_pos.left)
     $('#curr-color').css('background-color', color)
 });

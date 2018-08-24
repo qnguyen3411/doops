@@ -114,7 +114,7 @@ class Notification(models.Model):
         (WATCHER, 'Watcher')
     )
     notified_user = models.ForeignKey(User, related_name="user_notifications")
-    canvas = models.ForeignKey(CanvasNode, related_name="canvas_notifications")
+    new_canvas = models.ForeignKey(CanvasNode, related_name="canvas_notifications")
     user_status = models.CharField(
         max_length=1,
         choices= USER_STATUS_CHOICES,

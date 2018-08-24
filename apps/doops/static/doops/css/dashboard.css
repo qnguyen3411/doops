@@ -17,6 +17,12 @@
     background-color: rgba(64, 71, 63, 1)
 }
 
+#notifications{
+    position: absolute; top:0px; left:0px;
+    z-index: 5;
+    width: 350px;
+}
+
 body{    background-color: rgb(48, 48, 38);
 }
 
@@ -31,7 +37,9 @@ a:hover{
     font-weight: bold;
 }
 
-
+.notify-icon i:hover{
+    font-size: 15px;
+}
 .selected{
     border: 2px solid rgb(201, 241, 19);
     color: rgb(177, 201, 71);    
@@ -43,7 +51,7 @@ a:hover{
 li{
     transition:0.3s;
 }
-li:hover{
+#dashboard_window li:hover{
     background-color: rgb(80, 78, 69)
 }
 
@@ -51,7 +59,28 @@ li:hover{
     color: rgb(201, 241, 19);  
     font-weight:bold;
 }
-.watch-button{
+.notification-button:hover{
+    color: rgb(201, 241, 19);  
+    font-weight:bold;
+}
+#notifications ul {
+    transform: rotate(180deg);
+}
+#notifications ul > li {
+    transform: rotate(-180deg);
+}
+
+.notification-close:hover{
+    background-color: rgb(80, 78, 69);
+}
+.notification-go:hover{
+    background-color: rgb(80, 78, 69);
+}
+.notification-go{
+    border-right: 1px solid rgb(70, 69, 60)
+}
+
+.watch-button, .notification-button{
 
     cursor: pointer;
 }
@@ -68,7 +97,7 @@ li:hover{
     width:80px;
 }
 #vertical_nav li:hover{
-    background-color: rgb(92, 95, 83);
+    background-color: rgb(80, 78, 69);
     color: rgb(201, 241, 19);
     font-weight: bold;
 }
