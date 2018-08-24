@@ -93,6 +93,7 @@ $( document ).ready(function() {
     function draw(dot=false) {
         ctx.beginPath();
         if (dot){
+            ctx.fillStyle = color
             ctx.arc(currX, currY,
                 size/2, 0, 2 * Math.PI, false);
             ctx.fill()

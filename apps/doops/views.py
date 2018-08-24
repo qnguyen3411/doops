@@ -56,10 +56,13 @@ def dashboard_page(request, sort, mode, id ):
                 target = User.objects.get(id = id)
             else:
                 target = CanvasNode.objects.get(id = id)
-                if mode == "branch":
-                    canvas_list = target.children.all()
-                elif mode == "subtree":
-                    canvas_list = target.get_descendants().all()
+                if target:
+                    if mode == "branch":
+                        canvas_list = target.children.all()
+                    elif mode == "subtree":
+                        canvas_list = target.get_descendants().all()
+                    elif mode == "trace":
+                        canvas_list = target.get_ancestors().all()
         # Get all root nodes
         else:
             canvas_list = CanvasNode.objects.filter(parent=None)
@@ -190,6 +193,15 @@ def submit_process(request, node_id):
 
     return redirect('/')
 
+def random_process(request):
+    canvas_list = CanvasNode.objects.all()
+    rand_index = randint(0,len(canvas_list) - 1)
+    return redirect('/dashboard/new/branch/'+ str(canvas_list[rand_index].id))
+
+def logout_process(request):
+    request.session.clear()
+    return redirect('/')
+
 
 def watch_process(request, node_id):
     if 'id' in request.session:
@@ -212,10 +224,17 @@ def watch_process(request, node_id):
             return JsonResponse(response)
     return redirect('/')
 
-def random_process(request):
-    canvas_list = CanvasNode.objects.all()
-    rand_index = randint(0,len(canvas_list) - 1)
-    return redirect('/dashboard/new/branch/'+ str(canvas_list[rand_index].id))
+def delete_canvas(request, node_id):
+    if 'id' in request.session:
+        canvas_list = CanvasNode.objects.filter(id=int(node_id))
+        if canvas_list and canvas_list[0].poster.id == request.session['id']:
+            children_list = canvas_list[0].children.all()
+            for child in children_list:
+                child.parent = canvas_list[0].parent
+                child.save()
+            canvas_list[0].delete()
+
+    return redirect('/')
 
 def get_notifications(request):
     if 'id' in request.session:
@@ -233,6 +252,4 @@ def clear_notification(request):
             noti_list[0].delete()
     return HttpResponse("")
 
-def logout_process(request):
-    request.session.clear()
-    return redirect('/')
+

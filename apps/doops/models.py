@@ -109,7 +109,7 @@ class CanvasNode(models.Model):
     def get_ancestors(self):
         if self.parent == None:
             return CanvasNode.objects.filter(id = self.id)
-        return (self.parent.get_ancestors() | CanvasNode.objects.filter(id = self.id))
+        return ( CanvasNode.objects.filter(id = self.id) | self.parent.get_ancestors())
 
 
 class Notification(models.Model):
