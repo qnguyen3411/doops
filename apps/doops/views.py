@@ -1,5 +1,10 @@
 from random import randint
+import base64
+import os
+from PIL import Image
 from django.shortcuts import render, HttpResponse, redirect
+from django.conf import settings
+from django.core.files import File
 from django.contrib import messages
 from django.views.decorators.csrf import csrf_exempt
 from django.core import serializers
@@ -167,30 +172,29 @@ def submit_process(request, node_id):
     if request.method == 'POST' and 'id' in request.session:
         parent = None
 
-        if node_id != 0:
-            parent_list = CanvasNode.objects.filter(id=node_id)
-            if parent_list:
-                parent = parent_list[0]
     
+        parent_list = CanvasNode.objects.filter(id=node_id)
+        if parent_list:
+            parent = parent_list[0]
+        
+        # String object of a base64 encoding of a PNG
+        arr = request.POST['data_url']
         new_canvas = CanvasNode.objects.create(
-            data_url = request.POST['data_url'],
             poster = User.objects.get(id=request.session['id']),
             parent = parent
         )
-
-        if parent:
-            Notification.objects.create(
-                notified_user = parent.poster,
-                new_canvas = new_canvas
-            )
-            for watcher in parent.watched_users.all():
-                Notification.objects.create(
-                notified_user = watcher,
-                new_canvas = new_canvas,
-                user_status = WATCHER
-                )
-            return redirect('/dashboard/new/branch/' + str(parent.id))
-
+        with open(settings.MEDIA_ROOT + 'canvas'+str(new_canvas.id)+'.png', 'wb+') as f:
+            
+            #Wrap regular file with django File object, store in variable myfile
+            myfile = File(f)
+            
+            #Cut the string so that you only get the b64 string, decode into bytes and write to file
+            myfile.write(base64.b64decode(arr.split(',')[1]))
+            new_canvas.image = 'canvas'+str(new_canvas.id)+'.png'
+            new_canvas.save()
+            
+            # return redirect('/dashboard/new/branch/' + str(parent.id))
+        
     return redirect('/')
 
 def random_process(request):
@@ -253,3 +257,4 @@ def clear_notification(request):
     return HttpResponse("")
 
 
+    

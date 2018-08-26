@@ -1,5 +1,7 @@
-from django.db import models
 import re
+from django.db import models
+from django.core.files.storage import FileSystemStorage
+
 
 EMAIL_REGEX = re.compile(r'^[a-zA-Z0-9.+_-]+@[a-zA-Z0-9._-]+\.[a-zA-Z]+$')
 
@@ -69,7 +71,7 @@ class User(models.Model):
 
 
 class CanvasNode(models.Model):
-    data_url = models.TextField()
+    image = models.ImageField(blank=True)
     poster = models.ForeignKey(User, related_name="posted_canvases")
     watched_users = models.ManyToManyField(User, related_name="watched_canvases")
     parent = models.ForeignKey("self", related_name = "children",blank=True, null=True)

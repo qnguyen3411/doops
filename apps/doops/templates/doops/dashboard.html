@@ -98,52 +98,13 @@
                 </h6>
             </div>
             <ul id="canvas-list" class="list-group px-2">
-                {% if browse_settings.mode == '/branch' or browse_settings.mode == '/subtree'%}
-                <li id="canvas-{{target.id}}" class="list-group-item font-weight-bold p-0  mt-2 bg-neutral rounded ">
-                        <div class="text-left mb-2 p-3">
-                            <div class="col-12 p-0 my-0">
-                                <a class="text-disabled" href="/dashboard{{browse_settings.sort}}/post/{{target.poster.id}}">{{target.poster.username}}</a>
-                            </div>
-                            <div class=" p-0 m-0 text-disabled small ">
-                                <a class="text-disabled" href="/dashboard{{browse_settings.sort}}/trace/{{target.id}}" >
-                                Gen : <strong>{{target.get_generation}} <span class="text-lightgreen">(Parent)</span> </strong>|
-                                </a>
-                                <a class="text-disabled" href="/dashboard{{browse_settings.sort}}/branch/{{target.id}}" >
-                                    <strong>{{target.children.all.count}}</strong> branches
-                                </a>|
-                                <a class="text-disabled" href="/dashboard{{browse_settings.sort}}/subtree/{{target.id}}">
-                                    <strong>{{target.num_descendants}}</strong> descendants
-                                </a>|
-                                
-                                <div canvasID="{{target.id}}" class="{% if self in target.watched_users.all %}text-lightgreen{%else%}text-disabled{% endif %} d-inline link watch-button">
-                                    <span class="font-weight-bold watches">{{target.watched_users.all.count}}</span> 
-                                    watches (<span class="font-weight-bold total-watches">{{target.total_watches}}</span> total)
-                                </div> 
-                            </div> 
-                        </div>
-                    <img class=" browse-settings node rounded " src="{{target.data_url}}" alt="">
-                    <div class=" p-1 m-0 text-disabled d-flex justify-content-between">
-                        <div class="d-inline-block">
-                            {% if target.get_generation != 0 %}
-                            <a class="text-disabled" href="/dashboard{{browse_settings.sort}}/branch/{{target.parent.id}}">
-                                <i class="fas fa-arrow-left mx-1"></i><small>To parent</small>
-                            </a> |
-                            {% endif %}
-                            <a class="text-disabled" href="/dashboard{{browse_settings.sort}}/branch/{{target.id}}">
-                                <small>To branches</small><i class="fas fa-arrow-right mx-1"></i>
-                            </a>
-                        </div>
-                        <a class="text-disabled" href="/target/{{target.id}}"><i class="fas fa-palette ml-3"></i>Draw</a>
-                    </div>
-                </li>
-                {% endif%}
                 {% for canvas in canvases %}
                 <li id="canvas-{{canvas.id}}" class="list-group-item font-weight-bold p-0  mt-2 bg-neutral rounded ">
                     <div class="text-left mb-2 p-3">
                         <div class="col-12 p-0 my-0">
                             <a class="text-disabled" href="/dashboard{{browse_settings.sort}}/post/{{canvas.poster.id}}">{{canvas.poster.username}}</a>
                         </div>
-                        <div class=" p-0 m-0 text-disabled small ">
+                        <!-- <div class=" p-0 m-0 text-disabled small ">
                             <a class="text-disabled" href="/dashboard{{browse_settings.sort}}/trace/{{canvas.id}}" >
                             Gen : <strong>{{canvas.get_generation}} </strong>
                             </a>|
@@ -159,9 +120,15 @@
                                 <span class="font-weight-bold watches">{{canvas.watched_users.all.count}}</span> 
                                 watches (<span class="font-weight-bold total-watches">{{canvas.total_watches}}</span> total)
                             </div> 
-                        </div> 
+                        </div>  -->
                     </div>
-                    <img class=" browse-settings node rounded " src="{{canvas.data_url}}" alt="">
+                    <img class=" browse-settings node rounded " src="{{canvas.image.url}}" alt="">
+                    <p class="small text-disabled text-left p-2 m-2 bg-dark-green">
+                        Branches: 
+                        {% for child in canvas.children.all %}
+                        <span nodeID="{{ child.id }}" class=" text-lightgreen link preview_link">#{{ child.id }}</span>,
+                        {% endfor %}
+                    </p>
                     <div class=" p-2 mt-1 text-disabled d-flex justify-content-between">
                         <div class="d-inline-block">
                             {% if canvas.get_generation != 0 %}
