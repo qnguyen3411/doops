@@ -1,6 +1,129 @@
-
+console.log("DINLEBERRY")
 $( document ).ready(function() {
 
+    
+    class DrawTool {
+        constructor(context, overlayContext=null, colorStr = 'rgb(1, 1, 1)' , size=1){
+            this.ctx = context;
+            this.ovl_ctx = overlayContext;
+            this.ctx.fillStyle = colorStr;
+            this.ctx.strokeStyle = colorStr;
+            this.ctx.lineWidth = size;
+        }
+        setColor(colorStr){
+            this.ctx.fillStyle = colorStr;
+            this.ctx.strokeStyle = colorStr;
+        }
+        setSize(size){
+            this.ctx.lineWidth = size;
+        }
+        mouseDown(X, Y){
+            this.ctx.beginPath();
+            this.ctx.arc(X, Y,
+                this.ctx.lineWidth/2, 0, 2 * Math.PI, false);
+                this.ctx.fill();
+                this.ctx.closePath();
+            }
+        mouseMove(prevX, prevY, currX, currY){
+            this.ctx.beginPath();
+            this.ctx.moveTo(prevX, prevY);
+            this.ctx.lineTo(currX, currY);
+            this.ctx.stroke();
+            this.ctx.closePath();
+        }
+    }
+    class Ruler extends DrawTool {
+        mouseDown(X, Y){
+            this.pinX = X;
+            this.pinY = Y;
+        }
+        mouseMove(X,Y){
+            this.ctx.drawImage(overlay,0 , 0)
+            this.ctx.beginPath()  
+            this.ctx.moveTo(this.pinX, this.pinY)
+            this.ctx.lineTo(X, Y)
+            this.ctx.stroke();
+        }
+    }
+    
+    class Eraser extends DrawTool{
+        constructor(context, lineWidth=1){
+            super(context=context, lineWidth=lineWidth, colorStr = "rgb(255, 255, 255)");
+        }
+        setColor(){return;}
+        
+    }
+    class ColorTool{
+        constructor(affectedTools = [], colorBox){
+            this.colorBox = colorBox;
+            this.affectedTools = affectedTools;
+        }
+        updateToolColor(colorStr){
+            for(i = 0; i < this.affectedTools.length; i++){
+                this.affectedTools[i].setColor(colorStr)
+            }
+            return this;
+        }
+        
+        updateColorBox(colorStr){
+            $(this.colorBox).css('background-color', colorStr);
+            return this;
+        }
+    }
+    
+    class Eyedropper extends ColorTool{
+        
+        mouseDown(X,Y){
+            imgData = this.ctx.getImageData(X, Y, 1,1);
+            update_color("rgb",imgData.data[0],imgData.data[1],imgData.data[2]);
+            return imgData
+        }
+        mouseMove(X,Y){this.mouseDown(X,Y);}
+        mouseUp(){return;}
+        mouseLeave(){return;}
+    }
+    
+    class ColorSlider extends ColorTool{
+        constructor(affectedTools, colorBox, rSlider, gSlider, bSlider, hSlider, sSlider, lSlider){
+            super(affectedTools, colorBox)
+            this.RGBsliders = [rSlider, gSlider, bSlider]
+            this.HSLsliders = [hSlider, sSLider, lSlider]
+        }
+        
+        adjustSliders(mode, valArr){
+            if (mode == "rgb"){
+                this.RGBsliders[0].setVal(valArr[0])
+                this.RGBsliders[1].setVal(valArr[1])
+                this.RGBsliders[2].setVal(valArr[2])
+                hslArr = hslToRgb(valArr)
+                this.HSLsliders[0].setVal(hslArr[0])
+                this.HSLsliders[1].setVal(hslArr[1])
+                this.HSLsliders[2].setVal(hslArr[2])
+            } else {
+                rgbArr = rgbToHsl(valArr)
+                this.RGBsliders[0].setVal(rgbArr[0])
+                this.RGBsliders[1].setVal(rgbArr[1])
+                this.RGBsliders[2].setVal(rgbArr[2])
+            }
+        }
+        
+    }
+    class Slider{
+        constructor(label_el, slider_el){
+            this.label_el = label_el;
+            this.slider_el = slider_el;
+        }
+        getName(){
+            return $(this.label_el).attr('for')
+        }
+        getVal(){
+            return $(this.slider_el).val()
+        }
+        setVal(val){
+            $(this.label_el).html(val)
+            $(this.slider_el).val(val)
+        }
+    }
     var canvas = $('#botCanvas').get(0);
     var ctx = canvas.getContext("2d");
     var canv_offset = $(canvas).offset();
@@ -24,84 +147,86 @@ $( document ).ready(function() {
     pal_ctx.drawImage(pal_img, 0, 0, pallete.width, pallete.height)
     
     var curr_tool = "pen";
-    color = "black";
+    var color = "black";
     var opacity = 1.0;
     var size = 1;
-    
 
+    var pen_obj = new DrawTool(context = ctx, overlayContext = ovl_ctx, colorStr = color, size = 1)
+    var ruler_obj = new Ruler(context = ctx, overlayContext = ovl_ctx, colorStr = color, size = 1)
+    var eraser_obj = new Eraser(context = ctx, size = 6)
     //Canvas functionality
     $( '.canvas-container' )
-        .mouseenter(function(){
-            $('.draw-cursor').show()
-        })
-        .mousedown(function(e) {
+    .mouseenter(function(){
+        $('.draw-cursor').show()
+    })
+    .mousedown(function(e) {
+        prevX = currX;
+        prevY = currY;
+        currX = e.pageX - canv_offset.left;
+        currY = e.pageY - canv_offset.top;
+        flag = true;
+        
+        if(curr_tool == "eyedropper"){
+            imgData = ctx.getImageData(currX, currY, 1,1);
+            update_color("rgb",imgData.data[0],imgData.data[1],imgData.data[2]);    
+        }else if(curr_tool == "ruler"){
+            pinX = currX
+            pinY = currY
+        }else{
+            curr_tool.mouseDown(currX, currY)
+        }
+    })
+    .mouseup(function(e) {
+        flag = false;
+        ctx.closePath()
+        merge();
+    })
+    .mouseleave(function(e){
+        flag = false;
+        ctx.closePath()
+        $('.draw-cursor').hide();
+        merge();
+    })
+    .mousemove(function(e){
+        if (flag) {
             prevX = currX;
             prevY = currY;
             currX = e.pageX - canv_offset.left;
             currY = e.pageY - canv_offset.top;
-            flag = true;
-            
+            // if(curr_tool != "eraser" ){
+            //     ctx.strokeStyle = color;
+            // }else{
+            //     ctx.strokeStyle = "white";
+            // }
+            ctx.lineCap="round";
+            ctx.lineWidth = size;
             if(curr_tool == "eyedropper"){
                 imgData = ctx.getImageData(currX, currY, 1,1);
-                update_color("rgb",imgData.data[0],imgData.data[1],imgData.data[2]);    
+                update_color("rgb",imgData.data[0],imgData.data[1],imgData.data[2]);
             }else if(curr_tool == "ruler"){
-                pinX =currX
-                pinY = currY
-                console.log("mousedown")
+                drawLine()
             }else{
-                draw(dot=true)
+               curr_tool.mouseMove(prevX, prevY, currX, currY)
             }
-        })
-        .mouseup(function(e) {
-            flag = false;
-            ctx.closePath()
-            merge();
-        })
-        .mouseleave(function(e){
-            flag = false;
-            ctx.closePath()
-            $('.draw-cursor').hide();
-            merge();
-        })
-        .mousemove(function(e){
-            if (flag) {
-                prevX = currX;
-                prevY = currY;
-                currX = e.pageX - canv_offset.left;
-                currY = e.pageY - canv_offset.top;
-                if(curr_tool != "eraser" ){
-                    ctx.strokeStyle = color;
-                }else{
-                    ctx.strokeStyle = "white";
-                }
-                ctx.lineCap="round";
-                ctx.lineWidth = size;
-                if(curr_tool == "eyedropper"){
-                    imgData = ctx.getImageData(currX, currY, 1,1);
-                    update_color("rgb",imgData.data[0],imgData.data[1],imgData.data[2]);
-                }else if(curr_tool == "ruler"){
-                    drawLine()
-                }else{
-                    draw();
-                }
-            }
-            $('.draw-cursor')
-                .css('top', (e.pageY - size/2  ) + "px")
-                .css('left', (e.pageX - size/2 ) + "px")
-        });
-        
-    function draw(dot=false) {
-        ctx.beginPath();
-        if (dot){
-            ctx.fillStyle = color
-            ctx.arc(currX, currY,
-                size/2, 0, 2 * Math.PI, false);
-            ctx.fill()
-        }else{
-            ctx.moveTo(prevX, prevY);
-            ctx.lineTo(currX, currY);
-            ctx.stroke();
         }
+        $('.draw-cursor')
+            .css('top', (e.pageY - size/2  ) + "px")
+            .css('left', (e.pageX - size/2 ) + "px")
+    });
+    
+    function dot(){
+        ctx.beginPath();
+        ctx.fillStyle = color;
+        ctx.arc(currX, currY,
+            size/2, 0, 2 * Math.PI, false);
+        ctx.fill();
+        ctx.closePath();
+    }
+    function draw() {
+        ctx.beginPath();
+        ctx.moveTo(prevX, prevY);
+        ctx.lineTo(currX, currY);
+        ctx.stroke();
         ctx.closePath();
     }
     function drawLine(){
@@ -112,10 +237,10 @@ $( document ).ready(function() {
         ctx.stroke();
     }
     function merge(){
-        ctx.globalAlpha = 1.0 - opacity;
-        ctx.drawImage(overlay, 0, 0)
+        ovl_ctx.globalAlpha =  opacity;
         ovl_ctx.drawImage(canvas,0 ,0)
-        ctx.globalAlpha = 1;
+        ctx.drawImage(overlay, 0, 0)
+        ovl_ctx.globalAlpha = 1;
     }
 
     //Pallete functionality
@@ -181,7 +306,14 @@ $( document ).ready(function() {
 
     //canvas tool functionalities
     $('.tool:not(.clear)').click(function(){
-        curr_tool = $(this).attr('id')
+        name = $(this).attr('id')
+        if (name == "pen"){
+            console.log("PENNNN")
+            curr_tool = pen_obj;
+        } else if (name == "eraser"){
+            console.log("ERASRRR")
+            curr_tool = eraser_obj;
+        }
         console.log(curr_tool)
         $(this).parent().children().removeClass('selected')
         $(this).addClass('selected')
