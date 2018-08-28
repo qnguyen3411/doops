@@ -7,24 +7,17 @@ EMAIL_REGEX = re.compile(r'^[a-zA-Z0-9.+_-]+@[a-zA-Z0-9._-]+\.[a-zA-Z]+$')
 
 # Create your models here.
 class UserManager(models.Manager):
-    def clean_input(self, postData, form_login=False, form_register=False, form_edit=False):
-        if form_register:
-            cleanData = {
-                'username' : postData['username'].strip(),
-                'email' : postData['email'].strip().lower(),
-                'password' : postData['password'].strip(),
-                'confirm' : postData['confirm'].strip(),
-            }
-        elif form_login:
-            cleanData = {
-                'email' : postData['email'].strip().lower(),
-                'password' : postData['password'].strip(),
-            }
-        else:
-            cleanData = {
-                'username' : postData['username'].strip(),
-                'email' : postData['email'].strip().lower(),
-            }
+    def clean_input(self, postData):
+        # if form_register:
+        cleanData = {}
+        if 'username' in postData:
+            cleanData['username'] = postData['username'].strip()
+        if 'email' in postData:
+            cleanData['email'] = postData['email'].strip().lower()
+        if 'password' in postData:
+            cleanData['password'] = postData['password'].strip()
+        if 'confirm' in postData:
+            cleanData['confirm'] = postData['confirm'].strip()
         return cleanData
 
     def validate_name(self, postData, min_length=0):
@@ -70,6 +63,9 @@ class User(models.Model):
     objects = UserManager()
 
 
+# class CanvasNodeManager(models.Manager):
+
+
 class CanvasNode(models.Model):
     image = models.ImageField(blank=True)
     poster = models.ForeignKey(User, related_name="posted_canvases")
@@ -78,7 +74,7 @@ class CanvasNode(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
-    def isRoot(self):
+    def is_root(self):
         return self.parent == None;
 
     def num_descendants(self):
@@ -111,8 +107,13 @@ class CanvasNode(models.Model):
     def get_ancestors(self):
         if self.parent == None:
             return CanvasNode.objects.filter(id = self.id)
-        return ( CanvasNode.objects.filter(id = self.id) | self.parent.get_ancestors())
-
+        return (CanvasNode.objects.filter(id = self.id) | self.parent.get_ancestors())
+    
+    def get_siblings(self):
+        if self.parent == None:
+            return CanvasNode.objects.none()
+        else:
+            return self.parent.children.exclude(id = self.id)
 
 class Notification(models.Model):
     POSTER = 'P'

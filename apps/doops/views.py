@@ -4,12 +4,10 @@ import os
 from PIL import Image
 from django.shortcuts import render, HttpResponse, redirect
 from django.conf import settings
-from django.core.files import File
 from django.contrib import messages
 from django.views.decorators.csrf import csrf_exempt
 from django.core import serializers
 from django.db.models import Count, F
-from django.db.models.functions import Length
 from django.http import JsonResponse
 import json
 import bcrypt
@@ -17,74 +15,113 @@ from .models import *
 
 POSTER = 'P'
 WATCHER = 'W'
+GENERAL_BROWSING_MODES = ['all', 'root']
+NODE_BROWSING_MODES = ['ancestors', 'parent', 'siblings', 'children', 'descendants']
+USER_BROWSING_MODES = ['post', 'watch']
+SORT_MODES = ['new', 'old', 'popular']
+
 # Create your views here.
 def index(request):
     if 'id' in  request.session:
         return redirect('/dashboard')
     return render(request, "doops/index.html")
 
-def canvas_page(request, node_id=0):
-    data = {'isRoot' : True}
-    if node_id:
-        canv_list = CanvasNode.objects.filter(id=node_id)
-        if canv_list: 
-            data['isRoot'] = False
-            data['parent'] = canv_list[0]
-        else:
-            data['isRoot'] = True;
-    if 'id' in request.session:
-        data['self'] = User.objects.get(id=request.session['id'])
-    return render(request, "doops/canvas.html", data)
 
-""" Performs filters based on specifications
-Sort : new/popular (to implement - by branch num, by generation, by descendant num)
-mode : posts by user id, watches by user id, branches of node id, descendants of node id, or all roots
-id : can be user id or node id
-"""
-def dashboard_page(request, sort, mode, id ):
-    if 'id' in request.session:
-        target = None;
-        if sort == "popular":
-            primary_sort = "-num_watchers"
-            secondary_sort = "-id"
-        else:
-            sort = "new"
-            primary_sort = "-id"
-            secondary_sort = "-num_watchers"
+def dashboard_page(request):
 
-        if id != "":
-            if mode == "post":
-                canvas_list = CanvasNode.objects.filter(poster__id = int(id))
-                target = User.objects.get(id = id)
-            elif mode == "watch":
-                canvas_list = CanvasNode.objects.filter(watched_users__id = int(id))
-                target = User.objects.get(id = id)
-            else:
-                target = CanvasNode.objects.get(id = id)
-                if target:
-                    if mode == "branch":
-                        canvas_list = target.children.all()
-                    elif mode == "subtree":
-                        canvas_list = target.get_descendants().all()
-                    elif mode == "trace":
-                        canvas_list = target.get_ancestors().all()
-        # Get all root nodes
-        else:
-            canvas_list = CanvasNode.objects.filter(parent=None)
-        canvas_list = canvas_list.annotate(num_watchers = Count('watched_users'))
-        canvas_list = canvas_list.order_by(""+primary_sort).distinct()
+    if 'mode' not in request.GET:
+        mode = 'all'
+    else:
+        mode = request.GET['mode']
+    if 'sort' not in request.GET:
+        sort = 'new'
+    else:
+        sort = request.GET['sort']
+    print(request.GET)
+
+    if 'id' in request.session:
+        print(request.GET)
+        canvas_list = CanvasNode.objects.all()
         data = {
             'canvases' : canvas_list,
-            'browse_settings': {'mode': ("/"+ mode), 'id': ("/" + id), 'sort': ("/" + sort)},
-            'target' : target,
-            'self' : User.objects.get(id=request.session['id'])
+            'self' : User.objects.get(id=request.session['id']),
+            'request': request
         }
         return render(request, "doops/dashboard.html", data)
     return redirect('/')
 
-def settings_page(request,id):
+def canvas_draw(request, id=0):
+    
+    data = {'isRoot' : True}
+    if id:
+        canvas_list = CanvasNode.objects.filter(id=int(id))
+        if canvas_list: 
+            data['isRoot'] = False
+            data['parent'] = canvas_list[0]
+        else:
+            data['isRoot'] = True;
     if 'id' in request.session:
-        this_user = User.objects.get(id=id)
+        data['self'] = User.objects.get(id=request.session['id'])
+    return render(request, "doops/draw.html", data)
+
+def user_page(request, id, mode='post'):
+    if 'mode' not in request.GET:
+        mode = 'post'
+    else:
+        mode = request.GET['mode']
+    if 'sort' not in request.GET:
+        sort = 'new'
+    else:
+        sort = request.GET['sort']
+    
+    print(request.GET)
+
+    users = User.objects.filter(id = int(id))
+    if users : 
+        canvas_list = get_canvas_list(mode=mode, sort=sort, user_id=int(id))
+        data = {
+            'user' : users[0],
+            'canvases' : canvas_list,
+            'request': request
+
+        }
+        if 'id' in request.session:
+            data['self'] = User.objects.get(id=request.session['id'])
+        return render(request,'doops/user.html', data)
+
+    return redirect ('/')
+
+def canvas_show(request, id):
+    if 'mode' not in request.GET:
+        mode = 'self'
+    else:
+        mode = request.GET['mode']
+    if 'sort' not in request.GET:
+        sort = 'new'
+    else:
+        sort = request.GET['sort']
+    nodes = CanvasNode.objects.filter(id = int(id))
+    if nodes:
+        canvas_list = get_canvas_list(
+            mode=mode,
+            sort=sort,
+            node_id=int(id)
+            )
+        data = {
+            'node' : nodes[0],
+            'canvases' : canvas_list,
+            'request': request
+
+        }
+        if 'id' in request.session:
+            data['self'] = User.objects.get(id=request.session['id'])
+        return render(request, 'doops/canvas.html', data)
+    return redirect('/')
+
+
+def settings_page(request):
+    if 'id' in request.session:
+        this_user = User.objects.get(id=request.session['id'])
     data = {'self': this_user}
     return render(request, "doops/settings.html", data)
 
@@ -92,7 +129,7 @@ def settings_page(request,id):
 
 def register_process(request):
     if request.method == 'POST':
-        postData = User.objects.clean_input(request.POST, form_register=True)
+        postData = User.objects.clean_input(request.POST)
 
         errors = (User.objects.validate_name(postData, min_length=2) 
                 + User.objects.validate_email(postData) 
@@ -115,7 +152,7 @@ def register_process(request):
 
 def login_process(request):
     if request.method == 'POST':
-        postData = User.objects.clean_input(request.POST, form_login=True)
+        postData = User.objects.clean_input(request.POST)
 
         errors = (User.objects.validate_email(postData, check_unique=False) 
         + User.objects.validate_password(postData, min_length=8, check_confirm=False))
@@ -133,10 +170,14 @@ def login_process(request):
     
     return redirect('/')
 
+def logout_process(request):
+    request.session.clear()
+    return redirect('/')
+
 def update_info(request):
     if request.method == 'POST' and 'id' in request.session:
         check_unique = True
-        postData = User.objects.clean_input(request.POST, form_edit=True)
+        postData = User.objects.clean_input(request.POST)
         this_user = User.objects.get(id = request.session['id'])
         if postData['email'] == this_user.email:
             check_unique = False
@@ -168,11 +209,10 @@ def update_pw(request):
             return redirect('/users/'+str(this_user.id)+'/settings')
     return redirect('/')
 
-def submit_process(request, node_id):
+def submit_canvas(request, node_id):
     if request.method == 'POST' and 'id' in request.session:
         parent = None
 
-    
         parent_list = CanvasNode.objects.filter(id=node_id)
         if parent_list:
             parent = parent_list[0]
@@ -183,14 +223,10 @@ def submit_process(request, node_id):
             poster = User.objects.get(id=request.session['id']),
             parent = parent
         )
-        with open(settings.MEDIA_ROOT + 'canvas'+str(new_canvas.id)+'.png', 'wb+') as f:
-            
-            #Wrap regular file with django File object, store in variable myfile
-            myfile = File(f)
-            
-            #Cut the string so that you only get the b64 string, decode into bytes and write to file
-            myfile.write(base64.b64decode(arr.split(',')[1]))
-            new_canvas.image = 'canvas'+str(new_canvas.id)+'.png'
+
+        with open('{0}canvas{1}.png'.format(settings.MEDIA_ROOT, new_canvas.id), 'wb+') as f:
+            f.write(base64.b64decode(arr.split(',')[1]))
+            new_canvas.image = 'canvas{0}.png'.format(new_canvas.id)
             new_canvas.save()
             
             # return redirect('/dashboard/new/branch/' + str(parent.id))
@@ -202,9 +238,7 @@ def random_process(request):
     rand_index = randint(0,len(canvas_list) - 1)
     return redirect('/dashboard/new/branch/'+ str(canvas_list[rand_index].id))
 
-def logout_process(request):
-    request.session.clear()
-    return redirect('/')
+
 
 
 def watch_process(request, node_id):
@@ -226,6 +260,15 @@ def watch_process(request, node_id):
                 'user_watch': this_user.watched_canvases.all().count()
             }
             return JsonResponse(response)
+    return redirect('/')
+
+def get_relatives(request):
+    canvas_list = get_canvas_list(
+        mode=request.GET['mode'], 
+        node_id=int(request.GET['node_id']), 
+        sort=request.GET['sort'])
+    
+    return render(request, 'doops/relatives_list.html', {'relatives_list': canvas_list})
     return redirect('/')
 
 def delete_canvas(request, node_id):
@@ -258,3 +301,39 @@ def clear_notification(request):
 
 
     
+def get_canvas_list(mode='all', user_id=0, node_id=0, sort='new'):
+    canvas_list = CanvasNode.objects.all()
+    if mode == 'root':
+        canvas_list = CanvasNode.objects.filter(parent = None)
+    if mode == 'post' and user_id:
+        canvas_list = canvas_list.filter(poster__id = user_id)
+    elif mode == 'watch' and user_id:
+        canvas_list = canvas_list.filter(watched_users__id = user_id)
+
+    elif node_id:
+        canvas_list = canvas_list.filter(id = node_id)
+        if canvas_list:
+            node = canvas_list[0]
+            if mode == 'children':
+                canvas_list = node.children.all()
+            elif mode == 'parent':
+                if node.parent:
+                    canvas_list = CanvasNode.objects.filter(id = node.parent.id)
+                else:
+                    canvas_list = CanvasNode.objects.none()
+            elif mode == 'siblings':
+                canvas_list = node.get_siblings()
+            elif mode == 'ancestors':
+                canvas_list = node.get_ancestors().exclude(id = node.id)
+            elif mode == 'descendants':
+                canvas_list = node.get_descendants()
+
+    if sort == 'new':
+        canvas_list = canvas_list.order_by('-id')
+    elif sort == 'old':
+        canvas_list = canvas_list.order_by('id')
+    elif sort == 'popular':
+        canvas_list = (canvas_list.annotate(
+            num_watchers = Count('watched_users'))
+            .order_by('-num_watchers'))
+    return canvas_list

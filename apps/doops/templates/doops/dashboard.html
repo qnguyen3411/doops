@@ -16,78 +16,26 @@
     <script src="{% static "doops/js/topnav.js" %}"></script>
 </head>
 <body class="pt-1">
-    <div id="notifications" class="card">
-        <ul class="list-group small">
-        </ul>
+    <div id="preview-box" class="bg-dark-green border border-light p-1">
+        <img src="/media/canvas25.png" alt="" />
     </div>
-    
-    <h6 class="top-nav text-disabled col-12 mx-auto pt-2 text-center" style="position: sticky; top: 0; z-index:4;">
-        <strong >
-        <a class="mx-1 text-disabled" href="/dashboard">Home </a></strong> |
-        <span  class="notification-button mx-1 text-disabled small link" >
-            {{self.user_notifications.all.count}} Notifications </span>|
-        <span userID="{{self.id}}">
-        <a class=" mx-1 text-disabled small" href="/dashboard{{browse_settings.sort}}/post/{{self.id}}">
-            {{self.posted_canvases.all.count}} Posted </a>|
-        <a id="self-numwatch" class=" mx-1 text-disabled small" href="/dashboard{{browse_settings.sort}}/watch/{{self.id}}">
-            {{self.watched_canvases.all.count}} Watches 
-        </a>|
-        </span>
-        <a class="mx-1 text-disabled small" href="/users/{{self.id}}/settings">Settings </a>|
-        <a class="mx-1 text-disabled small" href="/logout"> Log out</a>
-    </h6>
+    <form id="browse-settings" action="" method="get">
+        <input type="hidden" name="mode" value="watch">
+        <input type="hidden" name="sort" value="new">
+    </form>
+    {% include 'doops/navbar.html' %}
     <!-- end nav -->
-    <div id="maincontainer" class="row p-0 mx-0 mt-2">
-        <div id="vertical_nav" class=" ml-auto px-0 border-0" >
-            <ul class="list-group text-lightgreen mr-1">
-                <a class="text-lightgreen" href="/dashboard">
-                <li class="list-group-item bg-disabled border-light text-center rounded mt-1 p-1" >
-                        <i class="fas fa-tree"></i>
-                        <p class="small m-0">Root</p>
-                    </li>
-                </a>
-                <a class="text-lightgreen" href="/random_process">
-                <li class="list-group-item bg-disabled border-light text-center rounded mt-1 p-1" >
-                        <i class="fas fa-dice"></i>
-                        <p class="small m-0">Random</p>
-                    </li>
-                </a>
-                <a class="text-lightgreen" href="/canvas">
-                <li class="list-group-item bg-disabled border-light text-center rounded mt-1 p-1" >
-                        <i class="fas fa-palette"></i>
-                        <p class="small m-0">New</p>
-                    </li>
-                </a>
-            </ul>
-        </div>
+    {{request.GET}}
 
-        <div id="dashboard_window" class="card mr-auto bg-transparent px-0 border-0 mt-1">
-            <div id="header-box" class="sticky rounded border border-light" style="position: sticky; top: 40px; z-index:4;">
-                <h6 class="pl-3 py-2 d-flex mx-1 my-0 text-neutral">
+    <div id="maincontainer" class="row p-0 mx-0 mt-2">
+        <div id="dashboard_window" class="mr-auto bg-transparent px-0 border-0 mt-1">
+            <div id="header-box" class="sticky" style="position: sticky; top: 40px; z-index:4;">
+                <div class="pl-3 py-2 d-flex mx-1 my-0 text-neutral">
+                        {% block content-header %}
                         <div>
-                        {% if browse_settings.mode == '/branch' %}
-                        Browsing node <span class="text-lightgreen">#{{target.id}}</span>'s branches
-                        {% elif browse_settings.mode == '/subtree' %}
-                        Browsing node <span class="text-lightgreen">#{{target.id}}</span>'s descendants
-                        {% elif browse_settings.mode == '/trace' %}
-                        Tracing node <span class="text-lightgreen">#{{target.id}}</span>'s ancestors
-                        {% elif browse_settings.mode == '/watch' or browse_settings.mode == '/post' %}
-                        <span class="text-lightgreen mr-2 small">
-                            <strong>{{target.username}} </strong>
-                        </span>
-                        <span class="font-weight-bold small">
-                            | <a class="{% if browse_settings.mode == '/post' %}text-lightgreen {% else %}text-neutral{% endif %}"
-                            href="/dashboard{{browse_settings.sort}}/post/{{target.id}}">{{target.posted_canvases.count}} posted</a>
-                            | <a class="{% if browse_settings.mode == '/watch' %}text-lightgreen{% else %}text-neutral{% endif %}" 
-                            href="/dashboard{{browse_settings.sort}}/watch/{{target.id}}">{{target.watched_canvases.count}} watches</a>
-                        </span>
-                        <div class="row col-12 small pt-1 px-0 mx-0">
-                        ID: {{target.id}} | Joined: {{target.created_at.date}}
+                        Browsing<span class="text-lightgreen"> all</span> nodes
                         </div>
-                        {% else %}
-                        Browsing<span class="text-lightgreen"> Root</span> nodes
-                        {% endif %}
-                        </div>
+                        {% endblock %}
 
                     <span class="ml-auto font-weight-bold small text-right">
                         <a class="mx-1 {% if browse_settings.sort == '/new' %}text-lightgreen selected{% else %}text-neutral{% endif %}" 
@@ -95,62 +43,14 @@
                         <a class="mx-1 {% if browse_settings.sort == '/popular' %}text-lightgreen selected{% else %}text-neutral{% endif %}" 
                         href="/dashboard/popular{{browse_settings.mode}}{{browse_settings.id}}">Most popular </a>
                     </span>
-                </h6>
+                </div>
             </div>
+
+
             <ul id="canvas-list" class="list-group px-2">
-                {% for canvas in canvases %}
-                <li id="canvas-{{canvas.id}}" class="list-group-item font-weight-bold p-0  mt-2 bg-neutral rounded ">
-                    <div class="text-left mb-2 p-3">
-                        <div class="col-12 p-0 my-0">
-                            <a class="text-disabled" href="/dashboard{{browse_settings.sort}}/post/{{canvas.poster.id}}">{{canvas.poster.username}}</a>
-                        </div>
-                        <!-- <div class=" p-0 m-0 text-disabled small ">
-                            <a class="text-disabled" href="/dashboard{{browse_settings.sort}}/trace/{{canvas.id}}" >
-                            Gen : <strong>{{canvas.get_generation}} </strong>
-                            </a>|
-                            <a class="text-disabled" href="/dashboard{{browse_settings.sort}}/branch/{{canvas.id}}" >
-                                <strong>{{canvas.children.all.count}}</strong> branches
-                            </a>|
-                            <a class="text-disabled" href="/dashboard{{browse_settings.sort}}/subtree/{{canvas.id}}">
-                                <strong>{{canvas.num_descendants}}</strong> descendants
-                            </a>|
-                            
-                            <div canvasID="{{canvas.id}}"
-                                class="{% if self in canvas.watched_users.all %}text-lightgreen{%else%}text-disabled{% endif %} d-inline link watch-button">
-                                <span class="font-weight-bold watches">{{canvas.watched_users.all.count}}</span> 
-                                watches (<span class="font-weight-bold total-watches">{{canvas.total_watches}}</span> total)
-                            </div> 
-                        </div>  -->
-                    </div>
-                    <img class=" browse-settings node rounded " src="{{canvas.image.url}}" alt="">
-                    <p class="small text-disabled text-left p-2 m-2 bg-dark-green">
-                        Branches: 
-                        {% for child in canvas.children.all %}
-                        <span nodeID="{{ child.id }}" class=" text-lightgreen link preview_link">#{{ child.id }}</span>,
-                        {% endfor %}
-                    </p>
-                    <div class=" p-2 mt-1 text-disabled d-flex justify-content-between">
-                        <div class="d-inline-block">
-                            {% if canvas.get_generation != 0 %}
-                            <a class="text-disabled" href="/dashboard{{browse_settings.sort}}/branch/{{canvas.parent.id}}">
-                                <i class="fas fa-arrow-left mx-1"></i>
-                                <small>To parent</small>
-                            </a> |
-                            {% endif %}
-                            <a class="text-disabled" href="/dashboard{{browse_settings.sort}}/branch/{{canvas.id}}">
-                                <small>To branches</small>
-                                <i class="fas fa-arrow-right mx-1"></i>
-                            </a>
-                        </div>
-                        <div>
-                        {% if canvas.poster.id == self.id %}
-                        <a class="text-disabled mr-3" href="/delete_canvas/{{canvas.id}}"><i class="fas fa-trash ml-3"></i> Delete</a>
-                        {% endif %}
-                        <a class="text-disabled mr-3" href="/canvas/{{canvas.id}}"><i class="fas fa-palette ml-3"></i> Draw</a>
-                        </div>
-                    </div>
-                </li>
-                {% endfor %}
+                {% block content %}
+                {% include "doops/canvas_list.html" %}
+                {% endblock %}
             </ul>
         </div>
         <!-- end dashboard window -->

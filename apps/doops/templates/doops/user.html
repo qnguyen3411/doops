@@ -1,0 +1,19 @@
+
+{% extends 'doops/dashboard.html' %}
+{% block content-header %}
+<div>
+
+    <span class="text-lightgreen mr-2 small">
+        <strong>{{user.username}} </strong>
+    </span>
+    <span class="font-weight-bold small">
+        | <a class="link-user link-user-post {% if mode == '/post' %}text-lightgreen {% else %}text-neutral{% endif %}"
+        href="{% url 'doops:user-canvases' user.id  %}">{{user.posted_canvases.count}} posted</a>
+        | <a class="link-user link-user-watch {% if mode == '/watch' %}text-lightgreen{% else %}text-neutral{% endif %}" 
+        href="{% url 'doops:user-canvases' user.id  %}">{{user.watched_canvases.count}} watches</a>
+    </span>
+    <div class="row col-12 small pt-1 px-0 mx-0">
+    ID: {{user.id}} | Joined: {{user.created_at.date}}
+    </div>
+</div>
+{% endblock %}

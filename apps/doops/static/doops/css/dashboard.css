@@ -23,6 +23,18 @@
     width: 350px;
 }
 
+#preview-box{
+    position: absolute; top:0px; left:0px;
+    z-index: 6;
+    width: 150px;
+    min-height:100px;
+}
+#preview-box img{
+    width:100%;
+    height:auto;
+}
+
+
 body{    background-color: rgb(48, 48, 38);
 }
 
@@ -34,7 +46,7 @@ img{
 
 
 .selected{
-    border: 2px solid rgb(201, 241, 19);
+    border: 2px solid rgb(177, 201, 71);
     color: rgb(177, 201, 71);    
     border-radius: 5px;
     padding-left:5px;
