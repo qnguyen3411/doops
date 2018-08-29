@@ -35,17 +35,13 @@
                     <a class="text-default" href="#change_pw">Change password</a> |
                     <a class="text-default" href="#delete">Delete account</a>
                 </p>
-                <form id="update_info" action="/update_info" method='post' class = "col-9 text-left small form-signin mt-3 ml-2">
+                <form id="update_info" action="/update_process" method='post' class = "col-9 text-left small form-signin mt-3 ml-2">
                     {% csrf_token %}
                     {% if messages %}
                     {% for message in messages %}
                     <li class="text-danger mb-1">{{message}}</li>
                     {% endfor %}
                     {% endif %}
-                    <div class="form-group">
-                    <label for="email" >Email address:</label>
-                    <input type="email" name="email" class="form-control" value="{{self.email}}" >
-                    </div>
                     <div class="form-group">
                     <label for="first_name">Username:</label>
                     <input type="text" class="form-control" name="username" value="{{self.username}}">
@@ -54,7 +50,7 @@
                     <input class="font-weight-bold bg-neutral text-neutral form-control my-2" type="submit" value="update">
                 </form>
 
-                <form id="change_pw" action="update_pw" method='post' class = "col-9 text-left small form-signin mt-3 ml-2">
+                <form id="change_pw" action="/update_process" method='post' class = "col-9 text-left small form-signin mt-3 ml-2">
                     {% csrf_token %}
                     {% if messages %}
                     {% for message in messages %}

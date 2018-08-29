@@ -12,6 +12,8 @@ class UserManager(models.Manager):
             cleanData['username'] = postData['username'].strip()
         if 'password' in postData:
             cleanData['password'] = postData['password'].strip()
+        if 'old_password' in postData:
+            cleanData['old_password'] = postData['password'].strip()
         if 'confirm' in postData:
             cleanData['confirm'] = postData['confirm'].strip()
         return cleanData
@@ -76,7 +78,7 @@ class UserManager(models.Manager):
             return {'user': user}
         return {'errors' : errors}
 
-
+    
 class User(models.Model):
     username = models.CharField(max_length=255)
     password_hash = models.CharField(max_length=255)
@@ -85,51 +87,83 @@ class User(models.Model):
 
     objects = UserManager()
 
+    def update(self, user_input):
+        check_unique = True
+        errors = []
+        postData = User.objects.clean_input(user_input)
+        update_username = False
+        update_pw = False
+        if 'username' in postData:
+            update_username = True
+
+            #if user is leaving the name as is, don't check for uniqueness
+            if postData['username'] == self.username:
+                check_unique = False
+            errors += User.objects.validate_name(postData, min_length=2, check_unique=check_unique) 
+
+        if set(['old_password','password','confirm']).issubset(set(postData)):
+            update_pw = True
+            errors += User.objects.validate_password(postData, min_length=8)
+            if bcrypt.checkpw(postData['old_password'].encode(), self.password_hash.encode()):
+                errors += [{'tag': 'old_password', 'message': 'Old password invalid'}]
+                
+        if not len(errors):
+            if update_username:
+                self.username = postData['username']
+            if update_pw:
+                self.password_hash = bcrypt.hashpw(postData['password'].encode(), bcrypt.gensalt())
+            self.save()
+            return {'user':self}
+        return {'errors': errors}
+
 
 class CanvasNodeManager(models.Manager):
-    # def get_canvas_list(mode='all', user_id=0, node_id=0, sort='new'):
-    #     canvas_list = CanvasNode.objects.all()
-    #     if mode == 'root':
-    #         canvas_list = CanvasNode.objects.filter(parent = None)
+    def get_canvas_list(self, mode='all', user_id=0, node_id=0, sort='new'):
+        canvas_list = CanvasNode.objects.all()
+        if mode == 'root':
+            canvas_list = CanvasNode.objects.filter(parent = None)
         
-    #     if user_id:
-    #         users = User.objects.filter(id = user_id)
-    #         if users:
-    #             if mode == 'post':
-    #                 canvas_list = canvas_list.filter(poster__id = user_id)
-    #             elif mode == 'watch':
-    #                 canvas_list = canvas_list.filter(watched_users__id = user_id)
+        if user_id:
+            users = User.objects.filter(id = user_id)
+            if users:
+                if mode == 'post':
+                    canvas_list = canvas_list.filter(poster__id = user_id)
+                elif mode == 'watch':
+                    canvas_list = canvas_list.filter(watched_users__id = user_id)
 
-    #     elif node_id:
-    #         nodes = canvas_list.filter(id = node_id)
-    #         if canvas_list:
-    #             node = nodes[0]
-    #             if mode == 'children':
-    #                 canvas_list = node.children.all()
-    #             elif mode == 'parent':
-    #                 if node.parent:
-    #                     canvas_list = CanvasNode.objects.filter(id = node.parent.id)
-    #                 else:
-    #                     canvas_list = CanvasNode.objects.none()
-    #             elif mode == 'siblings':
-    #                 canvas_list = node.get_siblings()
-    #             elif mode == 'ancestors':
-    #                 canvas_list = node.get_ancestors()
-    #             elif mode == 'descendants':
-    #                 canvas_list = node.get_descendants()
-    #             else:
-    #                 canvas_list = nodes
+        elif node_id:
+            nodes = canvas_list.filter(id = node_id)
+            if canvas_list:
+                node = nodes[0]
+                if mode == 'children':
+                    canvas_list = node.children.all()
+                elif mode == 'parent':
+                    if node.parent:
+                        canvas_list = CanvasNode.objects.filter(id = node.parent.id)
+                    else:
+                        canvas_list = CanvasNode.objects.none()
+                elif mode == 'siblings':
+                    canvas_list = node.get_siblings()
+                elif mode == 'ancestors':
+                    canvas_list = node.get_ancestors()
+                elif mode == 'descendants':
+                    canvas_list = node.get_descendants()
+                else:
+                    canvas_list = nodes
 
-    #     if sort == 'new':
-    #         canvas_list = canvas_list.order_by('-id')
-    #     elif sort == 'old':
-    #         canvas_list = canvas_list.order_by('id')
-    #     elif sort == 'popular':
-    #         canvas_list = (canvas_list.annotate(
-    #             num_watchers = Count('watched_users'))
-    #             .order_by('-num_watchers'))
-    #     return canvas_list
-    pass
+        if sort == 'new':
+            canvas_list = canvas_list.order_by('-id')
+        elif sort == 'old':
+            canvas_list = canvas_list.order_by('id')
+        elif sort == 'popular':
+            canvas_list = (canvas_list.annotate(
+                num_watchers = Count('watched_users'))
+                .order_by('-num_watchers'))
+        return canvas_list
+
+    
+
+    
 
 class CanvasNode(models.Model):
     image = models.ImageField(blank=True)

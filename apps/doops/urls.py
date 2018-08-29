@@ -10,15 +10,13 @@ urlpatterns = [
 
     url(r'dashboard/users/(?P<id>\d+)', views.user_page, name="user-canvases"),
 
-
     url(r'^dashboard/canvas/(?P<id>\d+)$', views.canvas_show, name="canvas-by-id"),
-
 
     url(r'^users/settings$', views.settings_page, name="user-settings"),
 
-    # url(r'^get_nodes$', views.get_nodes),
     url(r'^login_process$', views.login_process),
     url(r'^register_process$', views.register_process),
+    url(r'^update_process$', views.update_process),
     url(r'^update_info$', views.update_info),
     url(r'^update_pw$', views.update_pw),
 

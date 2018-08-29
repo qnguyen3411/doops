@@ -17,7 +17,7 @@
             <a value="ancestors" 
                 class="mode-setter
                     {% if 'mode' in request.GET and request.GET.mode == 'ancestors' %}
-                    text-lightgreen {% else %} text-disabled 
+                    text-lightgreen {% else %} text-default 
                     {% endif %} "
                 href="{% url 'doops:canvas-by-id' node.id  %}">
                 {{ node.get_ancestors.count }} ancestor{{ node.get_ancestors.count|pluralize }}
@@ -25,13 +25,13 @@
             <a value="parent" 
                 class="mode-setter
                     {% if 'mode' in request.GET and request.GET.mode == 'parent' %}
-                    text-lightgreen {% else %} text-disabled 
+                    text-lightgreen {% else %} text-default 
                     {% endif %} " 
                 href="{% url 'doops:canvas-by-id' node.id  %}">{% if node.parent %}1{% else %}0{% endif %} parent</a><br>
             <a value="siblings"
                 class="mode-setter
                     {% if 'mode' in request.GET and request.GET.mode == 'siblings' %}
-                    text-lightgreen {% else %} text-disabled 
+                    text-lightgreen {% else %} text-default 
                     {% endif %} "  
             href="{% url 'doops:canvas-by-id' node.id  %}">
             {{node.get_siblings.count}} sibling{{ node.get_siblings.count|pluralize }} 
@@ -39,7 +39,7 @@
             <a value="children"
                 class="mode-setter
                     {% if 'mode' in request.GET and request.GET.mode == 'children' %}
-                    text-lightgreen {% else %} text-disabled 
+                    text-lightgreen {% else %} text-default 
                     {% endif %} " 
             href="{% url 'doops:canvas-by-id' node.id  %}">
             {{node.children.all.count}} child{{node.children.all.count|pluralize:'ren'}}
@@ -47,7 +47,7 @@
             <a value="descendants"
                 class="mode-setter
                     {% if 'mode' in request.GET and request.GET.mode == 'descendants' %}
-                    text-lightgreen {% else %} text-disabled 
+                    text-lightgreen {% else %} text-default 
                     {% endif %} " 
             href="{% url 'doops:canvas-by-id' node.id  %}">
             {{node.get_descendants.count}} descendant{{node.get_descendants.count|pluralize}}
@@ -55,21 +55,21 @@
     </div>
 
 
-<div class="text-disabled end-section">
+<div class="text-default end-section">
     <a href="{% url 'doops:canvas-by-id' node.id %}" value="new"
         class="sort-setter link mr-1
         {% if 'sort' not in request.GET or request.GET.sort == 'new' %}
-        text-lightgreen {% else %} text-disabled
+        text-lightgreen {% else %} text-default
         {% endif %}">newest</a><br> 
     <a href="{% url 'doops:canvas-by-id' node.id %}" value="old"
         class="sort-setter link mr-1
         {% if 'sort' in request.GET and request.GET.sort == 'old' %}
-        text-lightgreen {% else %} text-disabled
+        text-lightgreen {% else %} text-default
         {% endif %}">oldest</a><br>
     <a href="{% url 'doops:canvas-by-id' node.id %}" value="popular"
         class="sort-setter link mr-1
         {% if 'sort' in request.GET and request.GET.sort == 'popular' %}
-        text-lightgreen {% else %} text-disabled
+        text-lightgreen {% else %} text-default
         {% endif %}">most popular</a>
     </div>
     <a class="text-lightgreen link"
