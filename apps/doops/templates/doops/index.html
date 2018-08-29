@@ -36,8 +36,8 @@
                         <li class="text-danger">{{message}}</li>
                         {% endfor %}
                         {% endif %}
-                        <label for="email" class="" >Email address:</label>
-                        <input type="email" name="email" class="form-control" placeholder="Email">
+                        <label for="username" class="" >Username::</label>
+                        <input type="text" name="username" class="form-control" placeholder="username">
                         <label for="password" class="mt-1">Password:</label>
                         <input type="password" name="password" class="form-control" placeholder="Password">
                         <input class="font-weight-bold bg-disabled text-neutral form-control my-2" type="submit" value="Sign In">
@@ -53,11 +53,7 @@
                         {% for message in messages %}
                         <li class="text-danger mb-1">{{message}}</li>
                         {% endfor %}
-                        {% endif %}
-                        <div class="form-group">
-                        <label for="email" >Email address:</label>
-                        <input type="email" name="email" class="form-control" >
-                        </div>
+                        {% endif %}                    
                         <div class="form-group">
                         <label for="username">Username:</label>
                         <input type="text" class="form-control" name="username">

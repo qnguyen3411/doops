@@ -123,45 +123,24 @@ def settings_page(request):
 
 def register_process(request):
     if request.method == 'POST':
-        postData = User.objects.clean_input(request.POST)
-
-        errors = (User.objects.validate_name(postData, min_length=2) 
-                + User.objects.validate_email(postData) 
-                + User.objects.validate_password(postData, min_length=8)
-                )
-        if len(errors):
-            for error in errors:
-                messages.error(request,error['message'], extra_tags=error['tag'])
+        result = User.objects.register(request.POST)
+        if 'errors' in result:
+            for error in result['errors']:
+                messages.error(request, error['message'], extra_tags=error['tag'])
         else:
-            pw_hash = bcrypt.hashpw(postData['password'].encode(), bcrypt.gensalt())
-
-            user = User.objects.create(
-                username = postData['username'],
-                email = postData['email'],
-                password_hash = pw_hash
-            )
-            request.session['id'] = user.id
+            this_user = result['user']
+            request.session['id'] = this_user.id
     return redirect('/')
 
 
 def login_process(request):
     if request.method == 'POST':
-        postData = User.objects.clean_input(request.POST)
-
-        errors = (User.objects.validate_email(postData, check_unique=False) 
-        + User.objects.validate_password(postData, min_length=8, check_confirm=False))
-
-        if len(errors):
-            messages.error(request, "Email/Password invalid", extra_tags='login' )
+        result = User.objects.login(request.POST)
+        if 'errors' in result:
+            messages.error(request, "Username/Password invalid", extra_tags='login')
         else:
-            user_list = User.objects.filter(email=postData['email'])
-            if user_list:
-                if bcrypt.checkpw(postData['password'].encode(), user_list[0].password_hash.encode()):
-                    request.session['id'] = user_list[0].id
-                    return redirect('/')
-            
-            messages.error(request, "Email/Password invalid", extra_tags='login')
-    
+            this_user = result['user']
+            request.session['id'] = this_user.id
     return redirect('/')
 
 def logout_process(request):
@@ -173,17 +152,15 @@ def update_info(request):
         check_unique = True
         postData = User.objects.clean_input(request.POST)
         this_user = User.objects.get(id = request.session['id'])
-        if postData['email'] == this_user.email:
+        if postData['username'] == this_user.username:
             check_unique = False
 
-        errors = (User.objects.validate_email(postData, check_unique=check_unique) 
-        + User.objects.validate_name(postData, min_length=2))
+        errors = User.objects.validate_name(postData, min_length=2, check_unique=check_unique) 
         if len(errors):
             for error in errors:
-                messages.error(request,error['message'], extra_tags=error['tag'])
+                messages.error(request, error['message'], extra_tags=error['tag'])
         else:
             this_user.username = postData['username']
-            this_user.email = postData['email']
             this_user.save()
         return redirect('/users/'+str(this_user.id)+'/settings')
     return redirect('/')
