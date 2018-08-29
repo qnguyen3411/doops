@@ -2,18 +2,18 @@
     <ul class="list-group small">
     </ul>
 </div>
-<nav class="top-nav text-disabled col-12 mx-auto pt-2 text-left" style="position: sticky; top: 0; z-index:4;">
+<nav class="top-nav text-default col-12 mx-auto pt-2 text-left" style="position: sticky; top: 0; z-index:6;">
     <strong >
-    <a class="mx-1 text-disabled" href="/dashboard">Home </a></strong> |
-    <span  class="notification-button mx-1 text-disabled small link" >
+    <a class="mx-1 text-default" href="/dashboard">Home </a></strong> |
+    <span  class="notification-button mx-1 text-default small link" >
         {{self.user_notifications.all.count}} Notifications </span>|
     <span userID="{{self.id}}">
-    <a class="link-user link-user-post mx-1 text-disabled small" href="{% url 'doops:user-canvases' self.id %}">
+    <a class="browse-link link-user link-user-post mx-1 text-default small" href="{% url 'doops:user-canvases' self.id %}">
         {{self.posted_canvases.all.count}} Posted </a>|
-    <a id="self-numwatch" class="link-user link-user-watch mx-1 text-disabled small" href="{% url 'doops:user-canvases' self.id %}">
+    <a id="self-numwatch" class="browse-link link-user link-user-watch mx-1 text-default small" href="{% url 'doops:user-canvases' self.id %}">
         {{self.watched_canvases.all.count}} Watches 
     </a>|
     </span>
-    <a class="mx-1 text-disabled small" href="{% url 'doops:user-settings' %}">Settings </a>|
-    <a class="mx-1 text-disabled small" href="/logout"> Log out</a>
+    <a class="mx-1 text-default small" href="{% url 'doops:user-settings' %}">Settings </a>|
+    <a class="mx-1 text-default small" href="/logout"> Log out</a>
 </nav>

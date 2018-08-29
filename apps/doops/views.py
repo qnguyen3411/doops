@@ -37,11 +37,10 @@ def dashboard_page(request):
         sort = 'new'
     else:
         sort = request.GET['sort']
-    print(request.GET)
 
     if 'id' in request.session:
         print(request.GET)
-        canvas_list = CanvasNode.objects.all()
+        canvas_list = get_canvas_list(mode=mode, sort=sort)
         data = {
             'canvases' : canvas_list,
             'self' : User.objects.get(id=request.session['id']),
@@ -51,8 +50,9 @@ def dashboard_page(request):
     return redirect('/')
 
 def canvas_draw(request, id=0):
-    
-    data = {'isRoot' : True}
+    data = {
+        'isRoot' : True,
+        'prev_url': request.META.get('HTTP_REFERER')}
     if id:
         canvas_list = CanvasNode.objects.filter(id=int(id))
         if canvas_list: 
@@ -73,9 +73,6 @@ def user_page(request, id, mode='post'):
         sort = 'new'
     else:
         sort = request.GET['sort']
-    
-    print(request.GET)
-
     users = User.objects.filter(id = int(id))
     if users : 
         canvas_list = get_canvas_list(mode=mode, sort=sort, user_id=int(id))
@@ -100,18 +97,15 @@ def canvas_show(request, id):
         sort = 'new'
     else:
         sort = request.GET['sort']
+    print(mode)
+    print(sort)
     nodes = CanvasNode.objects.filter(id = int(id))
     if nodes:
-        canvas_list = get_canvas_list(
-            mode=mode,
-            sort=sort,
-            node_id=int(id)
-            )
+        canvas_list = get_canvas_list(mode=mode, sort=sort, node_id=int(id))
         data = {
             'node' : nodes[0],
             'canvases' : canvas_list,
             'request': request
-
         }
         if 'id' in request.session:
             data['self'] = User.objects.get(id=request.session['id'])
@@ -262,10 +256,10 @@ def watch_process(request, node_id):
             return JsonResponse(response)
     return redirect('/')
 
-def get_relatives(request):
+def get_relatives(request, node_id):
     canvas_list = get_canvas_list(
         mode=request.GET['mode'], 
-        node_id=int(request.GET['node_id']), 
+        node_id=int(node_id), 
         sort=request.GET['sort'])
     
     return render(request, 'doops/relatives_list.html', {'relatives_list': canvas_list})
@@ -305,15 +299,19 @@ def get_canvas_list(mode='all', user_id=0, node_id=0, sort='new'):
     canvas_list = CanvasNode.objects.all()
     if mode == 'root':
         canvas_list = CanvasNode.objects.filter(parent = None)
-    if mode == 'post' and user_id:
-        canvas_list = canvas_list.filter(poster__id = user_id)
-    elif mode == 'watch' and user_id:
-        canvas_list = canvas_list.filter(watched_users__id = user_id)
+    
+    if user_id:
+        users = User.objects.filter(id = user_id)
+        if users:
+            if mode == 'post':
+                canvas_list = canvas_list.filter(poster__id = user_id)
+            elif mode == 'watch':
+                canvas_list = canvas_list.filter(watched_users__id = user_id)
 
     elif node_id:
-        canvas_list = canvas_list.filter(id = node_id)
+        nodes = canvas_list.filter(id = node_id)
         if canvas_list:
-            node = canvas_list[0]
+            node = nodes[0]
             if mode == 'children':
                 canvas_list = node.children.all()
             elif mode == 'parent':
@@ -324,9 +322,11 @@ def get_canvas_list(mode='all', user_id=0, node_id=0, sort='new'):
             elif mode == 'siblings':
                 canvas_list = node.get_siblings()
             elif mode == 'ancestors':
-                canvas_list = node.get_ancestors().exclude(id = node.id)
+                canvas_list = node.get_ancestors()
             elif mode == 'descendants':
                 canvas_list = node.get_descendants()
+            else:
+                canvas_list = nodes
 
     if sort == 'new':
         canvas_list = canvas_list.order_by('-id')

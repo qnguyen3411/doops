@@ -1,19 +1,49 @@
 
 {% extends 'doops/dashboard.html' %}
-{% block content-header %}
-<div>
+{% block browse-form %}
+    <input type="hidden" 
+    name="mode" 
+    value="{% if 'mode' in request.GET %}{{request.GET.mode}}{% else %}post{% endif %}">
+    <input type="hidden" 
+    name="sort" 
+    value="{% if 'sort' in request.GET %}{{request.GET.mode}}{% else %}new{% endif %}">
+{% endblock %}
 
-    <span class="text-lightgreen mr-2 small">
+{% block content-header %}
+
+    <p class="text-lightgreen end-section">
         <strong>{{user.username}} </strong>
-    </span>
-    <span class="font-weight-bold small">
-        | <a class="link-user link-user-post {% if mode == '/post' %}text-lightgreen {% else %}text-neutral{% endif %}"
-        href="{% url 'doops:user-canvases' user.id  %}">{{user.posted_canvases.count}} posted</a>
-        | <a class="link-user link-user-watch {% if mode == '/watch' %}text-lightgreen{% else %}text-neutral{% endif %}" 
-        href="{% url 'doops:user-canvases' user.id  %}">{{user.watched_canvases.count}} watches</a>
-    </span>
-    <div class="row col-12 small pt-1 px-0 mx-0">
-    ID: {{user.id}} | Joined: {{user.created_at.date}}
+    </p>
+    <div class="font-weight-bold end-section">
+        <a value="post" class="mode-setter
+            {% if 'mode' not in request.GET or request.GET.mode == 'post' %}
+            text-lightgreen {% else %} text-default {% endif %} " 
+        href="{% url 'doops:user-canvases' user.id  %}">{{user.posted_canvases.count}} posted</a><br>
+        <a value="watch" class="mode-setter
+            {% if 'mode' not in request.GET or request.GET.mode == 'post' %}
+            text-default {% else %} text-lightgreen {% endif %} "
+        href="{% url 'doops:user-canvases' user.id  %}">{{user.watched_canvases.count}} watched</a><br>
     </div>
-</div>
+
+
+<div class="text-default end-section">
+    <a href="{% url 'doops:user-canvases' user.id %}" value="new"
+        class="sort-setter link mr-1
+        {% if 'sort' not in request.GET or request.GET.sort == 'new' %}
+        text-lightgreen {% else %} text-default
+        {% endif %}">newest</a><br>
+    <a href="{% url 'doops:user-canvases' user.id %}" value="old"
+        class="sort-setter link mr-1
+        {% if 'sort' in request.GET and request.GET.sort == 'old' %}
+        text-lightgreen {% else %} text-default
+        {% endif %}">oldest</a><br>
+    <a href="{% url 'doops:user-canvases' user.id %}" value="popular"
+        class="sort-setter link mr-1
+        {% if 'sort' in request.GET and request.GET.sort == 'popular' %}
+        text-lightgreen {% else %} text-default
+        {% endif %}">most popular</a>
+    </div>
+    <a class="text-lightgreen link"
+    href="{% url 'doops:new-canvas' %}">Draw!
+    </a>
 {% endblock %}

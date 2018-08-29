@@ -1,71 +1,39 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="utf-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>Page Title</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel=stylesheet href=https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css integrity=sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO crossorigin=anonymous>
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.2.0/css/all.css" integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ" crossorigin="anonymous">
 
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-
+{% extends 'doops/dashboard.html' %}
+    <!-- end nav -->
     {% load static %}
+    {% block static %}
     <link rel="stylesheet" media="screen" href="{% static "doops/css/dashboard.css" %}" />
+    <link rel="stylesheet" media="screen" href="{% static "doops/css/color.css" %}" />
     <script src="{% static "doops/js/settings.js" %}"></script>
     <script src="{% static "doops/js/topnav.js" %}"></script>
-</head>
-<body class="pt-1">
-    
-        <div id="notifications" class="card">
-            <ul class="list-group small">
-            </ul>
-        </div>
+    {% endblock %}
+
+    {% block content-header %}
+    <p class="text-lightgreen end-section">
+            <strong>Settings </strong>
+        </p>
+        <div class="end-section">
             
-        <h6 class="top-nav text-disabled col-12 mx-auto pt-2 text-center" style="position: sticky; top: 0; z-index:4;">
-            <strong >
-            <a class="mx-1 text-disabled" href="/dashboard">Home </a></strong> |
-            <span  class="notification-button mx-1 text-disabled small" >
-                {{self.user_notifications.all.count}} Notifications </span>|
-            <span userID="{{self.id}}">
-            <a class=" mx-1 text-disabled small" href="/dashboard{{browse_settings.sort}}/post/{{self.id}}">
-                {{self.posted_canvases.all.count}} Posted </a>|
-            <a id="self-numwatch" class=" mx-1 text-disabled small" href="/dashboard{{browse_settings.sort}}/watch/{{self.id}}">
-                {{self.watched_canvases.all.count}} Watches 
-            </a>|
-            </span>
-            <a class="mx-1 text-disabled small" href="/users/{{self.id}}/settings">Settings </a>|
-            <a class="mx-1 text-disabled small" href="/logout"> Log out</a>
-        </h6>
-    <!-- end nav -->
-    <div class="row p-0 mx-0 mt-2">
-        <div id="vertical_nav" class="card ml-auto px-0 bg-transparent border-0" style="width:120px">
-            <ul class="list-group text-warm-dark" style="position: sticky; top: 40px; z-index:4;">
-            <li class="rounded small mt-4 mb-2 text-lightgreen" >
-                <a href="/dashboard" class="text-lightgreen">Dashboard</a>
-            </li>
-            <li class="rounded small mt-4 mb-2 text-lightgreen" >
-                Account settings
-            </li>
-            <li class="rounded small my-2 text-lightgreen" >
-                Timeline settings</li>
-            <li class="rounded small my-2 text-lightgreen" >
-                Customize</li>
-            </ul>
+            <a value="root" 
+            class="text-default"
+            href="#">Account</a><br>
+            <a value="root" 
+            class="text-default"
+            href="#">Timeline</a>
         </div>
-        <div id="dashboard_window" class="card col-8 col-sm-9 col-lg-7 mr-auto bg-transparent text-dark px-0 border-0">
-            <div class="sticky card text-left bg-darkgreen mx-1" style="position: sticky; top: 40px; z-index:4;">
-                <h6 class="pl-3 py-2 bg-transparent text-warm-dark row mx-1 my-0">
-                    <p class="col-7 my-0 d-none d-md-block">
-                        <i class="fas fa-tree p-1 pt-0"></i>
-                        <span class="text-lightgreen">{{self.username}}</span>'s account info</p>
-                </h6>
-            </div>
-            <div class="bg-transparent p-1 my-3 mx-2 rounded text-neutral row">
+        <a class="text-default"
+            href="#">To Dashboard</a><br>
+
+        
+    {% endblock %}
+            {% block content %}
+          
+            <div class="bg-transparent p-1 mx-2 rounded text-neutral row">
                 <p id="form-choice" class="col-12 small ml-auto mt-1 text-right">
                     <a class=" selected" href="#update_info">Update info</a> | 
-                    <a class="text-disabled" href="#change_pw">Change password</a> |
-                    <a class="text-disabled" href="#delete">Delete account</a>
+                    <a class="text-default" href="#change_pw">Change password</a> |
+                    <a class="text-default" href="#delete">Delete account</a>
                 </p>
                 <form id="update_info" action="/update_info" method='post' class = "col-9 text-left small form-signin mt-3 ml-2">
                     {% csrf_token %}
@@ -83,7 +51,7 @@
                     <input type="text" class="form-control" name="username" value="{{self.username}}">
                     </div>
                     
-                    <input class="font-weight-bold bg-disabled text-neutral form-control my-2" type="submit" value="update">
+                    <input class="font-weight-bold bg-neutral text-neutral form-control my-2" type="submit" value="update">
                 </form>
 
                 <form id="change_pw" action="update_pw" method='post' class = "col-9 text-left small form-signin mt-3 ml-2">
@@ -106,7 +74,7 @@
                     <input type="password" name="confirm" class="form-control" >
                     </div>
                     
-                    <input class="font-weight-bold bg-disabled text-neutral form-control my-2" type="submit" value="update password">
+                    <input class="font-weight-bold bg-neutral text-neutral form-control my-2" type="submit" value="update password">
                 </form>
 
                 <form id="delete" action="register_process" method='post' class = "col-9 text-left small form-signin mt-3 ml-2">
@@ -121,13 +89,9 @@
                     <input type="email" name="email" class="form-control" >
                     </div>
                     
-                    <input class="font-weight-bold bg-disabled text-neutral form-control my-2" type="submit" value="Delete account">
+                    <input class="font-weight-bold bg-neutral text-neutral form-control my-2" type="submit" value="Delete account">
                 </form>
             </div>
+            {% endblock %}
         <!-- end dashboard window -->
-        <div id="nav">
-
-        </div>
-    </div>
-</body>
-</html>
+        

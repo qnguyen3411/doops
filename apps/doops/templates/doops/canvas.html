@@ -1,21 +1,78 @@
 
 {% extends 'doops/dashboard.html' %}
-{% block content-header %}
-<div class="text-left">
+{% block browse-form %}
+    <input type="hidden" 
+    name="mode" 
+    value="{% if 'mode' in request.GET %}{{request.GET.mode}}{% else %}self{% endif %}">
+    <input type="hidden" 
+    name="sort" 
+    value="{% if 'sort' in request.GET %}{{request.GET.mode}}{% else %}new{% endif %}">
+{% endblock %}
 
-    <span class="text-lightgreen mr-2 small text-left">
-        <strong>Canvas#{{node.id}} - 
-            {% if 'mode' in request.GET %}
-            {{request.GET.mode}} 
-            {% else %}
-            self
-            {% endif %}
-        </strong>
-    </span>
-    <span class="font-weight-bold small">
-    </span>
-    <div class="row col-12 small pt-1 px-0 mx-0">
-    Created at: {{node.created_at.date}}
+{% block content-header %}
+    <p class="text-lightgreen end-section">
+        <strong>Node#{{node.id}} </strong>
+    </p>
+    <div class="font-weight-bold end-section">
+            <a value="ancestors" 
+                class="mode-setter
+                    {% if 'mode' in request.GET and request.GET.mode == 'ancestors' %}
+                    text-lightgreen {% else %} text-disabled 
+                    {% endif %} "
+                href="{% url 'doops:canvas-by-id' node.id  %}">
+                {{ node.get_ancestors.count }} ancestor{{ node.get_ancestors.count|pluralize }}
+            </a><br>
+            <a value="parent" 
+                class="mode-setter
+                    {% if 'mode' in request.GET and request.GET.mode == 'parent' %}
+                    text-lightgreen {% else %} text-disabled 
+                    {% endif %} " 
+                href="{% url 'doops:canvas-by-id' node.id  %}">{% if node.parent %}1{% else %}0{% endif %} parent</a><br>
+            <a value="siblings"
+                class="mode-setter
+                    {% if 'mode' in request.GET and request.GET.mode == 'siblings' %}
+                    text-lightgreen {% else %} text-disabled 
+                    {% endif %} "  
+            href="{% url 'doops:canvas-by-id' node.id  %}">
+            {{node.get_siblings.count}} sibling{{ node.get_siblings.count|pluralize }} 
+            </a><br>
+            <a value="children"
+                class="mode-setter
+                    {% if 'mode' in request.GET and request.GET.mode == 'children' %}
+                    text-lightgreen {% else %} text-disabled 
+                    {% endif %} " 
+            href="{% url 'doops:canvas-by-id' node.id  %}">
+            {{node.children.all.count}} child{{node.children.all.count|pluralize:'ren'}}
+        </a><br>
+            <a value="descendants"
+                class="mode-setter
+                    {% if 'mode' in request.GET and request.GET.mode == 'descendants' %}
+                    text-lightgreen {% else %} text-disabled 
+                    {% endif %} " 
+            href="{% url 'doops:canvas-by-id' node.id  %}">
+            {{node.get_descendants.count}} descendant{{node.get_descendants.count|pluralize}}
+        </a><br>
     </div>
-</div>
+
+
+<div class="text-disabled end-section">
+    <a href="{% url 'doops:canvas-by-id' node.id %}" value="new"
+        class="sort-setter link mr-1
+        {% if 'sort' not in request.GET or request.GET.sort == 'new' %}
+        text-lightgreen {% else %} text-disabled
+        {% endif %}">newest</a><br> 
+    <a href="{% url 'doops:canvas-by-id' node.id %}" value="old"
+        class="sort-setter link mr-1
+        {% if 'sort' in request.GET and request.GET.sort == 'old' %}
+        text-lightgreen {% else %} text-disabled
+        {% endif %}">oldest</a><br>
+    <a href="{% url 'doops:canvas-by-id' node.id %}" value="popular"
+        class="sort-setter link mr-1
+        {% if 'sort' in request.GET and request.GET.sort == 'popular' %}
+        text-lightgreen {% else %} text-disabled
+        {% endif %}">most popular</a>
+    </div>
+    <a class="text-lightgreen link"
+    href="{% url 'doops:new-canvas' %}">Draw!
+    </a>
 {% endblock %}

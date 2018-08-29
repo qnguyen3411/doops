@@ -7,15 +7,15 @@
     min-height: -moz-calc(100vh - 20px);
     min-height: calc(100vh - 20px);
     text-align: center;
-    font-style: serif;
-    width: 580px;
+    font-style: serif ;
+    max-width: 600px;
+    vertical-align: top;
+ 
 }
 #maincontainer{
-    min-width: 660px;
+    width:calc(93% - 100px);
 }
-#header-box{
-    background-color: rgba(64, 71, 63, 1)
-}
+
 
 #notifications{
     position: absolute; top:0px; left:0px;
@@ -34,8 +34,14 @@
     height:auto;
 }
 
+#side-nav{
+    position: -webkit-sticky;
+    position: sticky;
+    min-width: 100px;
+    width: 15%;
+}
 
-body{    background-color: rgb(48, 48, 38);
+body{    background-color: rgb(41, 25, 24);
 }
 
 img{
@@ -46,20 +52,20 @@ img{
 
 
 .selected{
-    border: 2px solid rgb(177, 201, 71);
-    color: rgb(177, 201, 71);    
+    border: 2px solid rgb(149, 209, 71);
+    color:rgb(149, 209, 71);    
     border-radius: 5px;
     padding-left:5px;
     padding-right:5px;
 }
 
 a:hover{
-    color: rgb(201, 241, 19);
+    color: rgb(149, 209, 71);
     text-decoration: none;
     font-weight: bold;
 }
 .link:hover{
-    color: rgb(201, 241, 19);  
+    color:rgb(149, 209, 71);  
     font-weight:bold;
     cursor: pointer;
 }
@@ -69,10 +75,9 @@ li{
 }
 
 #dashboard_window li:hover{
-    background-color: rgb(80, 78, 69)
-}
+    background-color: rgb(53, 82, 72)}
 
-
+    
 
 .notification-close:hover{
     background-color: rgb(80, 78, 69);
@@ -86,15 +91,19 @@ li{
 
 .watch-button, .notification-button{
 
-    cursor: ointer;
+    cursor: pointer;
 }
-#header-box{
-    height:60px;
-    box-shadow: 0 3px 3px rgba(48, 48, 38,.5);
+.end-section{
+    border-bottom: 2px solid rgb(98, 214, 78);
+}
+p{
+    margin-bottom: 0px;
 }
 
 #maincontainer ul{
-    position: sticky; top: 40px;;
+    position: sticky;
+    top: 40px;
+
 }
 
 #vertical_nav{
@@ -111,21 +120,18 @@ li{
 
 
 .top-nav {
-    height:43px;
-    background-color: rgb(48, 48, 38)
+    min-height:43px;
+    background-color: rgb(41, 25, 24);
     
 }
 
 
-.text-warm-dark{color: rgb(65, 60, 46)}
-.bg-dark-green{background-color: rgb(48, 48, 38)}
-.text-darkgreen{color: rgb(114, 133, 69)}
-.text-neutral{color:rgb(198, 192, 201) }
-.bg-grey{background-color: rgb(220, 224, 215);}
 
-.text-lightgreen{color: rgb(160, 187, 38);}
-.text-disabled{color:rgb(208, 204, 209)}
-.bg-neutral{background-color: rgb(95, 93, 83)}
-.bg-disabled{background-color: rgb(77, 85, 75)}
-.bg-darkgreen{background-color: rgb(95, 117, 94)}
-
+@media screen and (max-width: 699px) {
+    .top-nav{
+        font-size: 10px;
+    }
+    #dashboard_window, #side-nav{
+        font-size: 10px;
+    }
+}

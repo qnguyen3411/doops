@@ -1,60 +1,59 @@
 {% for canvas in canvases %}
-    <li id="canvas-{{canvas.id}}" class="list-group-item font-weight-bold p-0  mt-2 bg-neutral ">
-        <div class="text-left mb-2 py-1 px-3">
-            <a class="text-disabled" href="{% url 'doops:user-canvases' canvas.poster.id %}">{{canvas.poster.username}}</a>
-            <div class=" p-0 m-0 text-disabled small ">
-
+    <li id="canvas-{{canvas.id}}" class="list-group-item font-weight-bold p-0  mb-3 bg-neutral">
+        <div class="text-left mb-2 pt-2 px-3">
+            <a class="text-default" href="{% url 'doops:user-canvases' canvas.poster.id %}">{{canvas.poster.username}}</a>
+            <div class=" p-0 m-0 text-default small d-inline">
                 Gen : <strong>{{canvas.get_generation}} </strong> |
                 <div canvasID="{{canvas.id}}"
-                    class="{% if self in canvas.watched_users.all %}text-lightgreen{%else%}text-disabled{% endif %} d-inline link watch-button">
-                    <span class="font-weight-bold watches">{{canvas.watched_users.all.count}}</span> watches 
-                    (<span class="font-weight-bold total-watches">{{canvas.total_watches}}</span> total)
+                    class="{% if self in canvas.watched_users.all %}text-lightgreen{%else%}text-default{% endif %} d-inline link watch-button">
+                    <span class="font-weight-bold watches">{{canvas.watched_users.all.count}} watches</span>
+                    <span class="font-weight-bold total-watches">({{canvas.total_watches}} total)</span> 
                 </div> 
             </div> 
         </div>
         <img class=" browse-settings node rounded " src="{{canvas.image.url}}" alt="">
-        <div class="bottom small text-disabled">
+        <div class="bottom small text-default">
+            <form action="{% url 'doops:get-node-relatives' canvas.id %}" 
+                threadurl="{% url 'doops:canvas-by-id' canvas.id %}"
+                method="get" 
+                class="relations-settings">
+                <div class="row mx-3 mt-2">
+                    <div class="col-9 text-left text-default font-weight-bold pl-0">
+                        <input type="hidden" name="mode" value="children">
+                        <span value="ancestors" class="relative-option link mr-1">ancestors</span>
+                        <span value="parent" class="relative-option link mr-1">parent</span>
+                        <span value="siblings" class="relative-option link mr-1">siblings</span>
+                        <span value="children" class="relative-option link selected mr-1">children</span>
+                        <span value="descendants" class="relative-option link mr-1">descendants</span>
+                    </div>
+                    <div class="col-3 p-0 small text-right ">
+                        <select name="sort" class="col-12">
+                            <option value="new">Newest</option>
+                            <option value="old">Oldest</option>
+                            <option value="popular">Most watched</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <p class="relatives-list text-left p-1 p-sm-2 mt-1 mb-0 mx-3 bg-dark-green">
+                    {% for child in canvas.children.all %}
+                    <a imgpreview="{{child.image.url}}"
+                    href="{% url 'doops:canvas-by-id' child.id %}" 
+                    class="ml-1 text-lightgreen link preview_link"><u>#{{ child.id }}</u></a>
+                    {% empty %}
+                    <span class="text-neutral">None</span>
+                    {% endfor %}
+                </p>
+                <input type="submit" value="View in dashboard" 
+                class="text-right font-weight-bold btn-link p-0 ml-auto border-0 d-flex mb-0 link text-lightgreen mr-3">
+            </form>
 
-        <form action="{% url 'doops:get-node-relatives' %}" 
-            threadurl="{% url 'doops:canvas-by-id' canvas.id %}"
-            method="get" 
-            class="relations-settings">
-            <div class="row mx-2 mt-2">
-                <input type="hidden" name="node_id" value="{{canvas.id}}">
-                <div class="col-9 text-left text-disabled font-weight-bold">
-                    <input type="hidden" name="mode" value="children">
-                    <span value="ancestors" class="relative-option link mr-1">ancestors</span>
-                    <span value="parent" class="relative-option link mr-1">parent</span>
-                    <span value="siblings" class="relative-option link mr-1">siblings</span>
-                    <span value="children" class="relative-option link selected mr-1">children</span>
-                    <span value="descendants" class="relative-option link mr-1">descendants</span>
-                </div>
-                <div class="col-3 p-0 small text-right ">
-                    <select name="sort">
-                        <option value="new">Newest</option>
-                        <option value="old">Oldest</option>
-                        <option value="popular">Most watched</option>
-                    </select>
-                </div>
+            <div class="text-right mx-3 mb-2 font-weight-bold">
+                {% if canvas.poster.id == self.id %}
+                <a class="text-default " href="/delete_canvas/{{canvas.id}}"><i class="fas fa-trash ml-3"></i> Delete</a>
+                {% endif %}
+                <a class="text-default" href="{% url 'doops:new-canvas' canvas.id%}"><i class="fas fa-palette ml-2"></i> Draw</a>
             </div>
-        
-            <p class="relatives-list text-left p-2 mt-1 mb-0 mx-2 bg-dark-green">
-                {% for child in canvas.children.all %}
-                <a imgpreview="{{child.image.url}}"
-                href="{% url 'doops:canvas-by-id' child.id %}" 
-                class="ml-1 text-lightgreen link preview_link"><u>{{ child.id }}</u></a>
-                {% empty %}
-                <span class="text-disabled">None</span>
-                {% endfor %}
-            </p>
-            <input type="submit" value="View in dashboard" class="ml-auto border-0 d-flex mb-0 link text-disabled bg-transparent">
-        </form>
-
-        <div class="text-right p-1">
-            {% if canvas.poster.id == self.id %}
-            <a class="text-disabled mr-3" href="/delete_canvas/{{canvas.id}}"><i class="fas fa-trash ml-3"></i> Delete</a>
-            {% endif %}
-            <a class="text-disabled mr-3" href="{% url 'doops:new-canvas' canvas.id%}"><i class="fas fa-palette ml-3"></i> Draw</a>
         </div>
     </li>
 {% endfor %}

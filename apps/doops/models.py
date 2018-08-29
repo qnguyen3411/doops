@@ -105,9 +105,14 @@ class CanvasNode(models.Model):
         return (self.parent.get_generation() + 1)
 
     def get_ancestors(self):
+        ancestors_plus_self = self.get_ancestors_recursive()
+        return ancestors_plus_self.exclude(id = self.id)
+    
+
+    def get_ancestors_recursive(self):
         if self.parent == None:
             return CanvasNode.objects.filter(id = self.id)
-        return (CanvasNode.objects.filter(id = self.id) | self.parent.get_ancestors())
+        return (CanvasNode.objects.filter(id = self.id) | self.parent.get_ancestors_recursive())
     
     def get_siblings(self):
         if self.parent == None:

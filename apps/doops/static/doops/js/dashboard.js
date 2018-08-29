@@ -67,18 +67,20 @@ $( document ).ready(function() {
         $(this).parent().trigger('change')
     })
 
-    $('.link-user').click(function(){
-        var mode;
+    $('.mode-setter, .sort-setter').click(function(){
         $('#browse-settings').attr(
             'action',
             $(this).attr('href')
         )
-        if($(this).hasClass('link-user-post')){
-            mode = 'post'
+        if($(this).hasClass('mode-setter')){
+            input = $('#browse-settings input[name=mode]').get(0)
         } else {
-            mode = 'watch'
+            input = $('#browse-settings input[name=sort]').get(0)
         }
-        $('#browse-settings input[name=mode]').attr('value', mode)
+        $(input).attr(
+            'value', 
+            $(this).attr('value')
+        )
         $('#browse-settings').submit()
         return false;
     })

@@ -26,7 +26,7 @@ urlpatterns = [
     url(r'^delete_canvas/(?P<node_id>\d+)$', views.delete_canvas),
 
 
-    url(r'^get_relatives$', views.get_relatives, name="get-node-relatives"),
+    url(r'^get_relatives/(?P<node_id>\d+)$', views.get_relatives, name="get-node-relatives"),
     url(r'^random_process$', views.random_process),
     url(r'^get_notifications$', views.get_notifications),
     url(r'^clear_notification$', views.clear_notification),

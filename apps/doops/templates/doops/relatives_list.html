@@ -1,7 +1,7 @@
 {% for relative in relatives_list %}
     <a imgpreview="{{relative.image.url}}"
     href="{% url 'doops:canvas-by-id' relative.id %}" 
-    class="ml-1 text-lightgreen link preview_link"><u>{{ relative.id }}</u></a>
+    class="ml-1 text-lightgreen link preview_link"><u>#{{ relative.id }}</u></a>
     {% empty %}
     <span class="text-disabled">None</span>
 {% endfor %}

@@ -11,50 +11,87 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 
     {% load static %}
+    {% block static %}
     <link rel="stylesheet" media="screen" href="{% static "doops/css/dashboard.css" %}" />
+    <link rel="stylesheet" media="screen" href="{% static "doops/css/color.css" %}" />
     <script src="{% static "doops/js/dashboard.js" %}"></script>
     <script src="{% static "doops/js/topnav.js" %}"></script>
+    {% endblock %}
 </head>
 <body class="pt-1">
-    <div id="preview-box" class="bg-dark-green border border-light p-1">
-        <img src="/media/canvas25.png" alt="" />
+    <div id="preview-box" class="bg-dark-green border border-light p-1" style="display:none;">
+        <img src="" alt="" />
     </div>
     <form id="browse-settings" action="" method="get">
-        <input type="hidden" name="mode" value="watch">
-        <input type="hidden" name="sort" value="new">
+        {% block browse-form %}
+        <input type="hidden" 
+        name="mode" 
+        value="{% if 'mode' in request.GET %}{{request.GET.mode}}{% else %}all{% endif %}">
+        <input type="hidden" 
+        name="sort" 
+        value="{% if 'sort' in request.GET %}{{request.GET.sort}}{% else %}new{% endif %}">
+        {% endblock %}
     </form>
     {% include 'doops/navbar.html' %}
-    <!-- end nav -->
-    {{request.GET}}
-
-    <div id="maincontainer" class="row p-0 mx-0 mt-2">
-        <div id="dashboard_window" class="mr-auto bg-transparent px-0 border-0 mt-1">
-            <div id="header-box" class="sticky" style="position: sticky; top: 40px; z-index:4;">
-                <div class="pl-3 py-2 d-flex mx-1 my-0 text-neutral">
-                        {% block content-header %}
-                        <div>
-                        Browsing<span class="text-lightgreen"> all</span> nodes
-                        </div>
-                        {% endblock %}
-
-                    <span class="ml-auto font-weight-bold small text-right">
-                        <a class="mx-1 {% if browse_settings.sort == '/new' %}text-lightgreen selected{% else %}text-neutral{% endif %}" 
-                        href="/dashboard/new{{browse_settings.mode}}{{browse_settings.id}}">Newest </a>|
-                        <a class="mx-1 {% if browse_settings.sort == '/popular' %}text-lightgreen selected{% else %}text-neutral{% endif %}" 
-                        href="/dashboard/popular{{browse_settings.mode}}{{browse_settings.id}}">Most popular </a>
-                    </span>
-                </div>
+    <!-- end nav -->    
+    
+    <div id="side-nav" class="sticky text-left d-inline-block" style="position: sticky; top:40px; left:0px;">
+        <div class="pl-3 py-1 my-0 text-default font-weight-bold small">
+            {% block content-header %}
+            <p class="text-lightgreen end-section">
+                <strong>Main </strong>
+            </p>
+            <div class="end-section">
+                <a value="all" 
+                class="mode-setter
+                {% if 'mode' not in request.GET or request.GET.mode == 'all' %}
+                text-lightgreen {% else %} text-default
+                {% endif %} "
+                href="{% url 'doops:dashboard' %}">all</a><br>
+                <a value="root" 
+                class="mode-setter
+                {% if 'mode' not in request.GET or request.GET.mode == 'all' %}
+                text-default {% else %} text-lightgreen
+                {% endif %} "
+                href="{% url 'doops:dashboard' %}">root only</a>
             </div>
 
 
-            <ul id="canvas-list" class="list-group px-2">
+            <div class="text-default end-section">
+                <a href="{% url 'doops:dashboard' %}" value="new"
+                    class="sort-setter link mr-1
+                    {% if 'sort' not in request.GET or request.GET.sort == 'new' %}
+                    text-lightgreen {% else %} text-default
+                    {% endif %}">newest</a> <br>
+                <a href="{% url 'doops:dashboard' %}" value="old"
+                    class="sort-setter link mr-1
+                    {% if 'sort' in request.GET and request.GET.sort == 'old' %}
+                    text-lightgreen {% else %} text-default
+                    {% endif %}">oldest</a> <br>
+                <a href="{% url 'doops:dashboard' %}" value="popular"
+                    class="sort-setter link mr-1
+                    {% if 'sort' in request.GET and request.GET.sort == 'popular' %}
+                    text-lightgreen {% else %} text-default
+                    {% endif %}">most popular</a>
+            </div>
+            <a class="text-lightgreen link"
+            href="{% url 'doops:new-canvas' %}">Draw!
+            </a>
+        {% endblock %}
+        </div>
+    </div>
+    <div id="maincontainer" class=" p-0 m-0 d-inline-block align-top">
+        <div id="dashboard_window" class="ml-1 mr-auto mr-1 px-0 border-0 mt-1 col-10">
+            <ul id="canvas-list" class="list-group">
                 {% block content %}
                 {% include "doops/canvas_list.html" %}
                 {% endblock %}
             </ul>
         </div>
         <!-- end dashboard window -->
-
+    </div>
+    <div id="footer" class="small text-right text-default d-none d-lg-block font-weight-bold" style="position: fixed; top:calc(100% - 35px);left:calc(100% - 150px)" >
+        report bug | dev blog
     </div>
 </body>
 </html>
