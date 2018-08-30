@@ -7,7 +7,6 @@ from django.conf import settings
 from django.contrib import messages
 from django.views.decorators.csrf import csrf_exempt
 from django.core import serializers
-from django.db.models import Count
 from django.urls import reverse
 from django.http import JsonResponse
 import json
@@ -32,21 +31,22 @@ def dashboard_page(request):
     else:
         sort = request.GET['sort']
 
+    print(request.GET)
+    canvas_list = CanvasNode.objects.get_canvas_list(mode=mode, sort=sort)
+    data = {
+        'canvases' : canvas_list,
+        'request': request
+    }
     if 'id' in request.session:
-        print(request.GET)
-        canvas_list = CanvasNode.objects.get_canvas_list(mode=mode, sort=sort)
-        data = {
-            'canvases' : canvas_list,
-            'self' : User.objects.get(id=request.session['id']),
-            'request': request
-        }
-        return render(request, "doops/dashboard.html", data)
-    return redirect('/')
+        data['self'] = User.objects.get(id=request.session['id'])
+    return render(request, "doops/dashboard.html", data)
 
 def canvas_draw(request, id=0):
+    
     data = {
         'isRoot' : True,
-        'prev_url': request.META.get('HTTP_REFERER')}
+        'prev_url': request.META.get('HTTP_REFERER')
+        }
     if id:
         canvas_list = CanvasNode.objects.filter(id=int(id))
         if canvas_list: 
@@ -121,7 +121,7 @@ def register_process(request):
         else:
             this_user = result['user']
             request.session['id'] = this_user.id
-    return redirect('/')
+    return redirect(request.META.get('HTTP_REFERER'))
 
 
 def login_process(request):
@@ -132,43 +132,10 @@ def login_process(request):
         else:
             this_user = result['user']
             request.session['id'] = this_user.id
-    return redirect('/')
+    return redirect(request.META.get('HTTP_REFERER'))
 
 def logout_process(request):
     request.session.clear()
-    return redirect('/')
-
-def update_info(request):
-    if request.method == 'POST' and 'id' in request.session:
-        check_unique = True
-        postData = User.objects.clean_input(request.POST)
-        this_user = User.objects.get(id = request.session['id'])
-        if postData['username'] == this_user.username:
-            check_unique = False
-
-        errors = User.objects.validate_name(postData, min_length=2, check_unique=check_unique) 
-        if len(errors):
-            for error in errors:
-                messages.error(request, error['message'], extra_tags=error['tag'])
-        else:
-            this_user.username = postData['username']
-            this_user.save()
-            return redirect(reverse('doops:user-settings'))
-    return redirect('/')
-
-def update_pw(request):
-    if request.method == 'POST' and 'id' in request.session:
-        this_user = User.objects.get(id = request.session['id'])
-        if bcrypt.checkpw(request.POST['password'].encode(), this_user.password_hash.encode()):
-            errors = (User.objects.password(request.POST))
-            if len(errors):
-                for error in errors:
-                    messages.error(request,error['message'], extra_tags=error['tag'])
-            else:
-                pw_hash = bcrypt.hashpw(postData['password'].encode(), bcrypt.gensalt())
-                this_user.password_hash = pw_hash
-                this_user.save()
-            return redirect(reverse('doops:user-settings'))
     return redirect('/')
 
 def update_process(request):

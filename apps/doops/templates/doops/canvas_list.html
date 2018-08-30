@@ -1,11 +1,11 @@
 {% for canvas in canvases %}
-    <li id="canvas-{{canvas.id}}" class="list-group-item font-weight-bold p-0  mb-3 bg-neutral">
+    <li id="canvas-{{canvas.id}}" class="d-inline-block font-weight-bold p-0 col-12 col-xl-5 mr-xl-3 mb-3 bg-neutral">
         <div class="text-left mb-2 pt-2 px-3">
             <a class="text-default" href="{% url 'doops:user-canvases' canvas.poster.id %}">{{canvas.poster.username}}</a>
             <div class=" p-0 m-0 text-default small d-inline">
                 Gen : <strong>{{canvas.get_generation}} </strong> |
                 <div canvasID="{{canvas.id}}"
-                    class="{% if self in canvas.watched_users.all %}text-lightgreen{%else%}text-default{% endif %} d-inline link watch-button">
+                    class="{% if 'id' in request.session and self in canvas.watched_users.all %}text-lightgreen{%else%}text-default{% endif %} d-inline link watch-button">
                     <span class="font-weight-bold watches">{{canvas.watched_users.all.count}} watches</span>
                     <span class="font-weight-bold total-watches">({{canvas.total_watches}} total)</span> 
                 </div> 
@@ -49,7 +49,7 @@
             </form>
 
             <div class="text-right mx-3 mb-2 font-weight-bold">
-                {% if canvas.poster.id == self.id %}
+                {% if 'id' in request.session and canvas.poster.id == self.id %}
                 <a class="text-default " href="/delete_canvas/{{canvas.id}}"><i class="fas fa-trash ml-3"></i> Delete</a>
                 {% endif %}
                 <a class="text-default" href="{% url 'doops:new-canvas' canvas.id%}"><i class="fas fa-palette ml-2"></i> Draw</a>

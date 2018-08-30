@@ -14,6 +14,7 @@
     {% block static %}
     <link rel="stylesheet" media="screen" href="{% static "doops/css/dashboard.css" %}" />
     <link rel="stylesheet" media="screen" href="{% static "doops/css/color.css" %}" />
+    <link rel="stylesheet" media="screen" href="{% static "doops/css/topnav.css" %}" />
     <script src="{% static "doops/js/dashboard.js" %}"></script>
     <script src="{% static "doops/js/topnav.js" %}"></script>
     {% endblock %}
@@ -22,6 +23,7 @@
     <div id="preview-box" class="bg-dark-green border border-light p-1" style="display:none;">
         <img src="" alt="" />
     </div>
+
     <form id="browse-settings" action="" method="get">
         {% block browse-form %}
         <input type="hidden" 
@@ -32,6 +34,7 @@
         value="{% if 'sort' in request.GET %}{{request.GET.sort}}{% else %}new{% endif %}">
         {% endblock %}
     </form>
+    
     {% include 'doops/navbar.html' %}
     <!-- end nav -->    
     
@@ -81,12 +84,10 @@
         </div>
     </div>
     <div id="maincontainer" class=" p-0 m-0 d-inline-block align-top">
-        <div id="dashboard_window" class="ml-1 mr-auto mr-1 px-0 border-0 mt-1 col-10">
-            <ul id="canvas-list" class="list-group">
+        <div id="dashboard_window" class="ml-1 mr-auto mr-1 px-0 border-0 mt-1">
                 {% block content %}
                 {% include "doops/canvas_list.html" %}
                 {% endblock %}
-            </ul>
         </div>
         <!-- end dashboard window -->
     </div>

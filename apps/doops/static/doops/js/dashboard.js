@@ -1,7 +1,5 @@
-
 $( document ).ready(function() {
-
-
+    
     $('#dashboard_window').on('click','.watch-button',function(){
         var canvas_id = $(this).attr('canvasID')
         $(this).addClass('text-lightgreen')
@@ -25,23 +23,31 @@ $( document ).ready(function() {
     }); //end watch button listener
 
     $('#dashboard_window').on('mouseenter','.preview_link',function(e){
+
         $('#preview-box img').attr(
             'src',
             $(this).attr('imgpreview')
         )
         $('#preview-box').show()
-        $('#preview-box').css('top', e.pageY - 110 ).css('left', e.pageX + 5)
+        $('#preview-box')
+            .css(
+                'top', e.pageY - $('#preview-box').height() * 1.15 
+            )
+            .css(
+                'left', e.pageX + 5
+            )
     })
     .on('mouseleave', '.preview_link', function(e){
         $('#preview-box').hide()
+    }) //end
 
-    })
     $('#dashboard_window').on('change', '.relations-settings',function(){
         relatives_list = $(this).children('.relatives-list').get(0)
         $.ajax({
             url: $(this).attr('action'),
             method: 'GET',
             data: $(this).serialize(),
+
             success: function(resp){
                 $(relatives_list).html(resp)
 
@@ -85,9 +91,47 @@ $( document ).ready(function() {
         return false;
     })
 
+    var numCols = Math.floor(
+        $('#dashboard_window').width() 
+        / $('#dashboard_window li').outerWidth(includeMargin=true)
+        )
+        
     
+    $(window).resize(function() {
+        var newNumCols = Math.floor(
+            $('#dashboard_window').width() 
+            / $('#dashboard_window li').outerWidth(includeMargin=true)
+            );
+        if (newNumCols != numCols){
+            numCols = newNumCols;
+            loadDashboardColumns(numCols)
+        }
+    })
+
+    function loadDashboardColumns(numCols){
+        var liArr = $('#dashboard_window').find('li')
+
+        // Remove all old column divs
+        $($('.dashboard-column').children()).unwrap()
+        $('.dashboard-column').remove()
+
+        // Generate new column divs
+        for( var i = 0; i < numCols; i++){
+            $('#dashboard_window').append('<div class="dashboard-column"></div>')
+        }
+        $('.dashboard-column').width(
+            $('#dashboard_window li').outerWidth(includeMargin=true) - 10
+        )
+        var colArr = $('#dashboard_window').children('.dashboard-column')
+
+        // Load li's into columns
+        for( var i = 0 ; i < liArr.length; i++){
+            pos = i % numCols
+            $(colArr[pos]).append(liArr[i])
+        }
+    }
 
 
     $('#preview-box').hide()
-    
+    loadDashboardColumns(numCols)
 });

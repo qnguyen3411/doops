@@ -22,49 +22,24 @@ span::selection{
 span::-moz-selection{
     background-color: rgb(75, 73, 66)
 }
-.tab-content{
-    box-shadow: 5px 10px 5px rgba(46, 43, 33, 0.5);
-}
 
 
-.active-grey{
-    background-color: rgb(220, 224, 215);
-}
+
 
 #input-window{
     min-height:100px;
     width: 500px;
 }
 
-.nav-link{
-    border: 1px solid rgb(175, 177, 167); 
-}
-.nav-link:hover{
-    color:rgb(98, 117, 76);
-}
+
+
 .bg-disabled.nav-link:hover{
     color: rgb(189, 216, 70);
 }
 input[type="submit"]:hover{
-    background-color:  rgb(94, 97, 83);
     color: rgb(177, 201, 71);
 }
 ul{
     list-style-position: inside;
 }
-li:hover{
-    background-color: rgb(39, 39, 30)
-}
 
-
-.text-warm-dark{color: rgb(65, 60, 46)}
-.bg-dark-green{background-color: rgb(48, 48, 38)}
-.text-darkgreen{color: rgb(82, 104, 61)}
-.text-neutral{color:rgb(175, 177, 167) }
-
-
-.text-lightgreen{color: rgb(194, 221, 75);}
-.text-disabled{color: rgb(97, 102, 75)}
-.bg-neutral{background-color: rgb(165, 179, 169)}
-.bg-disabled{background-color: rgb(108, 110, 97)}
-.bg-darkgreen{background-color: rgb(95, 117, 94)}

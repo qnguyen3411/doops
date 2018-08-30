@@ -6,7 +6,7 @@
     value="{% if 'mode' in request.GET %}{{request.GET.mode}}{% else %}post{% endif %}">
     <input type="hidden" 
     name="sort" 
-    value="{% if 'sort' in request.GET %}{{request.GET.mode}}{% else %}new{% endif %}">
+    value="{% if 'sort' in request.GET %}{{request.GET.sort}}{% else %}new{% endif %}">
 {% endblock %}
 
 {% block content-header %}

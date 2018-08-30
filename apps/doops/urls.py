@@ -17,8 +17,6 @@ urlpatterns = [
     url(r'^login_process$', views.login_process),
     url(r'^register_process$', views.register_process),
     url(r'^update_process$', views.update_process),
-    url(r'^update_info$', views.update_info),
-    url(r'^update_pw$', views.update_pw),
 
     url(r'^submit_canvas/(?P<node_id>\d+)$', views.submit_canvas, name="submit-canvas"),
     url(r'^delete_canvas/(?P<node_id>\d+)$', views.delete_canvas),

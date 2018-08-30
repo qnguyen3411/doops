@@ -1,0 +1,35 @@
+.top-nav {
+    min-height:43px;
+    background-color: rgb(41, 25, 24);
+    
+}
+
+#mini-logreg{
+    width:250px;
+    position:absolute;
+    top:80px; left:0px;
+    z-index: 6;
+    background-color: rgb(41, 25, 24)
+}
+#mini-logreg .close:hover{
+    color: rgb(169, 236, 81)!important;
+}
+
+.notification-close:hover{
+    background-color: rgb(80, 78, 69);
+}
+.notification-go:hover{
+    background-color: rgb(80, 78, 69);
+}
+.notification-go{
+    border-right: 1px solid rgb(70, 69, 60)
+}
+.notification-button{
+    cursor: pointer;
+}
+
+#notifications{
+    position: absolute; top:0px; left:0px;
+    z-index: 5;
+    width: 350px;
+}

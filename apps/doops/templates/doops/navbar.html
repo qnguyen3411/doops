@@ -4,16 +4,65 @@
 </div>
 <nav class="top-nav text-default col-12 mx-auto pt-2 text-left" style="position: sticky; top: 0; z-index:6;">
     <strong >
-    <a class="mx-1 text-default" href="/dashboard">Home </a></strong> |
-    <span  class="notification-button mx-1 text-default small link" >
+    <a class="mx-1 text-default" href="/dashboard">Home</a></strong> 
+    {% if 'id' in request.session %}
+    | <span  class="notification-button mx-1 text-default small link" >
         {{self.user_notifications.all.count}} Notifications </span>|
     <span userID="{{self.id}}">
-    <a class="browse-link link-user link-user-post mx-1 text-default small" href="{% url 'doops:user-canvases' self.id %}">
+    <a value="post" class="mode-setter mx-1 text-default small" href="{% url 'doops:user-canvases'  self.id %}">
         {{self.posted_canvases.all.count}} Posted </a>|
-    <a id="self-numwatch" class="browse-link link-user link-user-watch mx-1 text-default small" href="{% url 'doops:user-canvases' self.id %}">
+    <a id="self-numwatch" value="watch" class="mode-setter mx-1 text-default small" href="{% url 'doops:user-canvases' self.id %}">
         {{self.watched_canvases.all.count}} Watches 
     </a>|
     </span>
     <a class="mx-1 text-default small" href="{% url 'doops:user-settings' %}">Settings </a>|
     <a class="mx-1 text-default small" href="/logout"> Log out</a>
+    {% elif "draw" not in request.path %}
+    | <span class="mx-1 link text-default small login-button">Login </span>|
+    <span class="mx-1 link text-default small register-button">Register </span>
+
+    {% endif %}
 </nav>
+
+
+<div id="mini-logreg" class="border rounded" style="display:none">
+   
+</div>
+    <div id="login" class="d-none">
+        <p class="pl-3 font-weight-bold text-lightgreen m-0">Login
+        <i class="fas fa fa-times link text-neutral mx-1 close"></i>
+    </p>
+    <form action="/login_process" method='post' class = "text-left small font-weight-bold form-signin col-12">
+        {% csrf_token %}
+        {% if messages %}
+        {% for message in messages %}
+        {% if message.extra_tags == 'login' %}
+        <li class="text-danger small">{{message}}</li>
+        {% endif %}
+        {% endfor %}
+        {% endif %}
+
+        <input type="text" name="username" class="rounded mb-1 col-11" placeholder="Username">
+        <input type="password" name="password" class="rounded col-11" placeholder="Password">
+        <input class="border-0 p-1 link font-weight-bold d-block text-neutral bg-transparent" type="submit" value="Sign In">
+    </form>
+    </div>
+    <div id="register" class="d-none">
+    <p class="pl-3 font-weight-bold text-lightgreen m-0">Register
+        <button type="button" class="close link text-neutral mx-1 small" aria-label="Close">x</button>
+    </p>
+    <form action="/register_process" method='post' class = "text-left small font-weight-bold form-signin col-12">
+        {% csrf_token %}
+        {% if messages %}
+        {% for message in messages %}
+        {% if message.extra_tags != 'login' %}
+        <li class="text-danger small">{{message}}</li>
+        {% endif %}
+        {% endfor %}
+        {% endif %}
+        <input type="text" name="username" class="rounded mb-1 col-11" placeholder="Username">
+        <input type="password" name="password" class="rounded mb-1 col-11" placeholder="Password">
+        <input type="password" name="confirm" class="rounded col-11" placeholder="Confirm password">
+        <input class="border-0 p-1 link font-weight-bold d-block text-neutral bg-transparent" type="submit" value="Register">
+    </form>
+    </div>

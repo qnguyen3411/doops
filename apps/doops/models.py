@@ -1,8 +1,8 @@
 import re
 import bcrypt
 from django.db import models
+from django.db.models import Count
 
-EMAIL_REGEX = re.compile(r'^[a-zA-Z0-9.+_-]+@[a-zA-Z0-9._-]+\.[a-zA-Z]+$')
 
 # Create your models here.
 class UserManager(models.Manager):
@@ -167,7 +167,7 @@ class CanvasNodeManager(models.Manager):
 
 class CanvasNode(models.Model):
     image = models.ImageField(blank=True)
-    poster = models.ForeignKey(User, related_name="posted_canvases")
+    poster = models.ForeignKey(User, related_name="posted_canvases", blank=True, null=True)
     watched_users = models.ManyToManyField(User, related_name="watched_canvases")
     parent = models.ForeignKey("self", related_name = "children",blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -178,6 +178,9 @@ class CanvasNode(models.Model):
     def is_root(self):
         return self.parent == None;
 
+    def by_anonymous(self):
+        return self.poster == None;
+        
     def num_descendants(self):
         count = 0
         for child in self.children.all():

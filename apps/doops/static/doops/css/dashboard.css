@@ -8,26 +8,32 @@
     min-height: calc(100vh - 20px);
     text-align: center;
     font-style: serif ;
-    max-width: 600px;
+    width:100%;
     vertical-align: top;
  
 }
+
+#dashboard_window li{
+    max-width: 650px;
+    vertical-align: -webkit-baseline-middle;
+}
 #maincontainer{
-    width:calc(93% - 100px);
+    width:calc(90% - 100px);
+}
+
+#dashboard_window .dashboard-column{
+    margin-right: 10px;
+    display: inline-block;
+    vertical-align: top;
 }
 
 
-#notifications{
-    position: absolute; top:0px; left:0px;
-    z-index: 5;
-    width: 350px;
-}
 
 #preview-box{
     position: absolute; top:0px; left:0px;
     z-index: 6;
-    width: 150px;
-    min-height:100px;
+    width: 11%;
+    min-height:10px;
 }
 #preview-box img{
     width:100%;
@@ -38,7 +44,8 @@
     position: -webkit-sticky;
     position: sticky;
     min-width: 100px;
-    width: 15%;
+    /* max-width: 200px; */
+    width: 10%;
 }
 
 body{    background-color: rgb(41, 25, 24);
@@ -47,8 +54,13 @@ body{    background-color: rgb(41, 25, 24);
 img{
     width: 95%;
     height:auto;
+    transition:0.2s;
+    cursor: pointer;
 }
-
+img:hover{
+    width: 96%;
+    height:auto;
+}
 
 
 .selected{
@@ -75,21 +87,12 @@ li{
 }
 
 #dashboard_window li:hover{
-    background-color: rgb(53, 82, 72)}
+    background-color: rgb(46, 49, 48)}
 
     
 
-.notification-close:hover{
-    background-color: rgb(80, 78, 69);
-}
-.notification-go:hover{
-    background-color: rgb(80, 78, 69);
-}
-.notification-go{
-    border-right: 1px solid rgb(70, 69, 60)
-}
 
-.watch-button, .notification-button{
+.watch-button{
 
     cursor: pointer;
 }
@@ -106,24 +109,6 @@ p{
 
 }
 
-#vertical_nav{
-    width:80px;
-}
-#vertical_nav li:hover{
-    background-color: rgb(62, 66, 60);
-    color: rgb(201, 241, 19);
-    font-weight: bold;
-}
-#vertical_nav li{
-    transition: 0.2s
-}
-
-
-.top-nav {
-    min-height:43px;
-    background-color: rgb(41, 25, 24);
-    
-}
 
 
 

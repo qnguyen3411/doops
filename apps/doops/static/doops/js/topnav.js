@@ -9,7 +9,6 @@ $( document ).ready(function() {
     $('#notifications').on('click', 'li', function(){
         self_id = $(this).attr('selfID')
         noti_id = $(this).attr('notiID')
-        console.log("HEYYY")
         $.ajax({
             method: "POST",
             url: "/clear_notification",
@@ -25,9 +24,7 @@ $( document ).ready(function() {
     })
 
 
-    $(window).scroll(function(){
-        $('#notifications').hide()
-    })
+    
     //request for all notifications to server and format
     function getNotifications(){
         $.ajax({
@@ -71,7 +68,28 @@ $( document ).ready(function() {
         list_el.append(output)
         return list_el
     }
+    $('#mini-logreg').on('click', '.close', function(){
+        $('#mini-logreg').hide()
+    })
     
+    $('.login-button, .register-button').click(function(e){
+        $('#mini-logreg').css('top', e.clientY + 10 + $(window).scrollTop())
+        .css('left', e.clientX + $(window).scrollLeft())
+        .empty()
+        .toggle()
+        if($(this).hasClass('login-button')){
+            console.log($('#login').get(0))
+            $('#mini-logreg').html($('#login').html())
+        } else {
+            console.log($('#register').get(0))
+            $('#mini-logreg').html($('#register').html())
+        }
+    })
+    
+    $(window).scroll(function(){
+        $('#notifications').hide()
+        $('#mini-logreg').hide()
+    })
     getNotifications()
     $('#notifications').hide()
 });
