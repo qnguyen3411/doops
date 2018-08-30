@@ -147,7 +147,11 @@ def update_process(request):
     return redirect(reverse('doops:user-settings'))
     
 def submit_canvas(request, node_id):
-    if request.method == 'POST' and 'id' in request.session:
+    if request.method == 'POST':
+        if 'id' in request.session:
+            poster = User.objects.get(id=request.session['id'])
+        else:
+            poster = None
         parent = None
 
         parent_list = CanvasNode.objects.filter(id=node_id)
@@ -157,7 +161,7 @@ def submit_canvas(request, node_id):
         # String object of a base64 encoding of a PNG
         arr = request.POST['data_url']
         new_canvas = CanvasNode.objects.create(
-            poster = User.objects.get(id=request.session['id']),
+            poster = poster,
             parent = parent
         )
 
@@ -209,7 +213,8 @@ def get_relatives(request, node_id):
 def delete_canvas(request, node_id):
     if 'id' in request.session:
         canvas_list = CanvasNode.objects.filter(id=int(node_id))
-        if canvas_list and canvas_list[0].poster.id == request.session['id']:
+        deleter = User.objects.get(id=request.session['id'])
+        if canvas_list and (canvas_list[0].poster.id == deleter.id or deleter.is_admin()):
             children_list = canvas_list[0].children.all()
             for child in children_list:
                 child.parent = canvas_list[0].parent

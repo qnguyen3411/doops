@@ -30,6 +30,7 @@ class UserManager(models.Manager):
                 errors.append({'tag':'username','message': 'Username already in use'})
         return errors
     
+
     def validate_password(self, postData, min_length=0, check_confirm=True):
         errors = []
         if len(postData['password']) < min_length:
@@ -41,6 +42,7 @@ class UserManager(models.Manager):
                 'tag':'password',
                 'message': 'Password must match password confirm.'})
         return errors
+
 
     def login(self, user_input):
         """
@@ -57,6 +59,7 @@ class UserManager(models.Manager):
                 if bcrypt.checkpw(postData['password'].encode(), user_list[0].password_hash.encode()):
                     return {'user': user_list[0]}
         return {'errors' : [{'tag':'login', 'message': "Username/password invalid"}]}
+
 
     def register(self, user_input):
         """
@@ -82,10 +85,14 @@ class UserManager(models.Manager):
 class User(models.Model):
     username = models.CharField(max_length=255)
     password_hash = models.CharField(max_length=255)
+    user_level = models.IntegerField(default=1)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     objects = UserManager()
+
+    def is_admin(self):
+        return self.user_level == 9;
 
     def update(self, user_input):
         check_unique = True
@@ -161,13 +168,10 @@ class CanvasNodeManager(models.Manager):
                 .order_by('-num_watchers'))
         return canvas_list
 
-    
-
-    
 
 class CanvasNode(models.Model):
     image = models.ImageField(blank=True)
-    poster = models.ForeignKey(User, related_name="posted_canvases", blank=True, null=True)
+    poster = models.ForeignKey(User, on_delete=models.SET_NULL, related_name="posted_canvases", blank=True, null=True)
     watched_users = models.ManyToManyField(User, related_name="watched_canvases")
     parent = models.ForeignKey("self", related_name = "children",blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -180,7 +184,7 @@ class CanvasNode(models.Model):
 
     def by_anonymous(self):
         return self.poster == None;
-        
+
     def num_descendants(self):
         count = 0
         for child in self.children.all():

@@ -1,7 +1,11 @@
 {% for canvas in canvases %}
     <li id="canvas-{{canvas.id}}" class="d-inline-block font-weight-bold p-0 col-12 col-xl-5 mr-xl-3 mb-3 bg-neutral">
         <div class="text-left mb-2 pt-2 px-3">
+            {% if canvas.by_anonymous %}
+            <span class="text-default">Anonymous</span>
+            {% else %}
             <a class="text-default" href="{% url 'doops:user-canvases' canvas.poster.id %}">{{canvas.poster.username}}</a>
+            {% endif %}
             <div class=" p-0 m-0 text-default small d-inline">
                 Gen : <strong>{{canvas.get_generation}} </strong> |
                 <div canvasID="{{canvas.id}}"
@@ -49,8 +53,10 @@
             </form>
 
             <div class="text-right mx-3 mb-2 font-weight-bold">
-                {% if 'id' in request.session and canvas.poster.id == self.id %}
+                {% if 'id' in request.session%}
+                {% if canvas.poster.id == self.id or self.is_admin %}
                 <a class="text-default " href="/delete_canvas/{{canvas.id}}"><i class="fas fa-trash ml-3"></i> Delete</a>
+                {% endif %}
                 {% endif %}
                 <a class="text-default" href="{% url 'doops:new-canvas' canvas.id%}"><i class="fas fa-palette ml-2"></i> Draw</a>
             </div>
