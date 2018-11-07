@@ -23,10 +23,23 @@ span::-moz-selection{
     background-color: rgb(75, 73, 66)
 }
 
-
+#img-window{
+    position: fixed; /* Stay in place */
+    z-index: -1; /* Sit on top */
+    padding-top: 70px; /* Location of the box */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+}
+#img-window img{
+    height: 100%;
+    width:auto;
+}
 
 
 #input-window{
+    z-index: 1;
     min-height:100px;
     width: 500px;
 }

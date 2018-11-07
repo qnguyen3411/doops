@@ -13,35 +13,87 @@ import json
 import bcrypt
 from .models import *
 
+
+CANVAS_MODE_DEFAULT = 'self'
+USER_MODE_DEFAULT = 'post'
+GENERAL_MODE_DEFAULT = 'all'
+SORT_DEFAULT = 'new'
 # Create your views here.
 def index(request):
     if 'id' in  request.session:
-        return redirect('/dashboard')
+        logged_user = get_logged_user(request)
+        if not logged_user:
+            request.session.clear()
+        else:
+            return redirect('/dashboard')
     return render(request, "doops/index.html")
 
 
 def dashboard_page(request):
 
-    if 'mode' not in request.GET:
-        mode = 'all'
-    else:
-        mode = request.GET['mode']
-    if 'sort' not in request.GET:
-        sort = 'new'
-    else:
-        sort = request.GET['sort']
+    mode = request.GET.get('mode', GENERAL_MODE_DEFAULT)
+    sort = request.GET.get('sort', SORT_DEFAULT)
 
-    print(request.GET)
-    canvas_list = CanvasNode.objects.get_canvas_list(mode=mode, sort=sort)
+    canvas_list = CanvasNode.objects.get_canvas_list(
+        mode=mode, sort=sort
+    )
     data = {
         'canvases' : canvas_list,
-        'request': request
     }
-    if 'id' in request.session:
-        data['self'] = User.objects.get(id=request.session['id'])
+    logged_user = get_logged_user(request)
+    if logged_user:
+        data['self'] = logged_user
     return render(request, "doops/dashboard.html", data)
 
-def canvas_draw(request, id=0):
+
+def user_page(request, id):
+
+    mode = request.GET.get('mode', USER_MODE_DEFAULT)
+    sort = request.GET.get('sort', SORT_DEFAULT)
+
+    users = User.objects.filter(id = int(id))
+    if users : 
+        canvas_list = CanvasNode.objects.get_canvas_list(
+            user_id = id, mode=mode, sort=sort
+            )
+        data = {
+            'user' : users[0],
+            'canvases' : canvas_list,
+            'request': request
+        }
+        logged_user = get_logged_user(request)
+        if logged_user:
+            data['self'] = logged_user
+        return render(request,'doops/user.html', data)
+
+    return redirect ('/')
+
+def canvas_page(request, id):
+
+    mode = request.GET.get('mode', CANVAS_MODE_DEFAULT)
+    sort = request.GET.get('sort', SORT_DEFAULT)
+
+    nodes = CanvasNode.objects.filter(id = int(id))
+    if nodes:
+        canvas_list = CanvasNode.objects.get_canvas_list(
+            node_id = id, mode=mode, sort=sort
+        )
+
+        data = {'canvases': canvas_list}
+
+        if request.is_ajax():
+            return render(
+                request, 'doops/relatives_list.html', data)
+        
+        
+        data['node'] = nodes[0]
+        logged_user = get_logged_user(request)
+        if logged_user:
+            data['self'] = logged_user
+        return render(request, 'doops/canvas.html', data)
+    return redirect('/')
+
+def draw_page(request, id=None):
     
     data = {
         'isRoot' : True,
@@ -54,65 +106,32 @@ def canvas_draw(request, id=0):
             data['parent'] = canvas_list[0]
         else:
             data['isRoot'] = True;
-    if 'id' in request.session:
-        data['self'] = User.objects.get(id=request.session['id'])
+    logged_user = get_logged_user(request)
+    if logged_user:        
+        data['self'] = logged_user
     return render(request, "doops/draw.html", data)
 
-def user_page(request, id, mode='post'):
-    if 'mode' not in request.GET:
-        mode = 'post'
-    else:
-        mode = request.GET['mode']
-    if 'sort' not in request.GET:
-        sort = 'new'
-    else:
-        sort = request.GET['sort']
-    users = User.objects.filter(id = int(id))
-    if users : 
-        canvas_list = CanvasNode.objects.get_canvas_list(mode=mode, sort=sort, user_id=int(id))
-        data = {
-            'user' : users[0],
-            'canvases' : canvas_list,
-            'request': request
-        }
-        if 'id' in request.session:
-            data['self'] = User.objects.get(id=request.session['id'])
-        return render(request,'doops/user.html', data)
+# Require logged in
+def settings_page(request):
+    logged_user = get_logged_user(request)
+    if logged_user:
+        data = {'self': logged_user}
+        return render(request, "doops/settings.html", data)
+    return redirect('/')
 
-    return redirect ('/')
-
-def canvas_show(request, id):
-    if 'mode' not in request.GET:
-        mode = 'self'
-    else:
-        mode = request.GET['mode']
-    if 'sort' not in request.GET:
-        sort = 'new'
-    else:
-        sort = request.GET['sort']
-
-    nodes = CanvasNode.objects.filter(id = int(id))
-    if nodes:
-        canvas_list = CanvasNode.objects.get_canvas_list(mode=mode, sort=sort, node_id=int(id))
-        data = {
-            'node' : nodes[0],
-            'canvases' : canvas_list,
-            'request': request
-        }
-        if 'id' in request.session:
-            data['self'] = User.objects.get(id=request.session['id'])
-        return render(request, 'doops/canvas.html', data)
+# Require logged in and admin
+def admin_page(request):
+    logged_user = get_logged_user(request)
+    if logged_user and logged_user.is_admin():
+            data = {
+                'users': User.objects.all(),
+                'reports': Report.objects.all(),
+            }
+            return render(request, 'doops/admin.html', data)
     return redirect('/')
 
 
-def settings_page(request):
-    if 'id' in request.session:
-        this_user = User.objects.get(id=request.session['id'])
-    data = {'self': this_user}
-    return render(request, "doops/settings.html", data)
-
-
-def register_process(request):
+def user_register_process(request):
     if request.method == 'POST':
         result = User.objects.register(request.POST)
         if 'errors' in result:
@@ -124,32 +143,67 @@ def register_process(request):
     return redirect(request.META.get('HTTP_REFERER'))
 
 
-def login_process(request):
+def user_login_process(request):
     if request.method == 'POST':
         result = User.objects.login(request.POST)
         if 'errors' in result:
-            messages.error(request, "Username/Password invalid", extra_tags='login')
+            for error in result['errors']:
+                messages.error(request, error['message'], extra_tags=error['tag'])
         else:
             this_user = result['user']
             request.session['id'] = this_user.id
     return redirect(request.META.get('HTTP_REFERER'))
 
-def logout_process(request):
+def user_logout_process(request):
     request.session.clear()
+    return redirect(request.META.get('HTTP_REFERER'))
+
+# Require logged in
+def user_update_process(request, id):
+    updater = get_logged_user(request)
+    targets = User.objects.filter(id = id)
+    if request.method == 'POST' and targets:
+        if updater.is_admin() or updater.id == targets[0].id:
+            result = targets[0].update(request.POST)
+        if 'errors' in result:
+            for error in result['errors']:
+                messages.error(request, error['message'], extra_tags=error['tag'])
+    return redirect(reverse('doops:user-settings'))
+
+# Require logged in
+def user_delete_process(request, id):
+    if 'id' in request.session:
+        deleter = get_logged_user(request)
+        targets = User.objects.filter(id = int(id))
+
+        # If deleter and target is found
+        if deleter and targets:
+            if deleter.is_admin():
+                as_admin = True
+            else:
+                as_admin = False
+                
+            result = User.objects.delete_user(
+                this_user = targets[0],
+                as_admin = as_admin,
+                pw_validation = request.POST,
+            )
+            if 'errors' in result:
+                for error in result['errors']:
+                    messages.error(request, error['message'], extra_tags=error['tag'])
+
+            elif not as_admin:
+                request.session.clear()
+            return redirect(request.META.get('HTTP_REFERER'))
     return redirect('/')
 
-def update_process(request):
-    if request.method == 'POST' and 'id' in request.session:
-        this_user = User.objects.get(id = request.session['id'])
-    result = this_user.update(request.POST)
-    if 'errors' in result:
-        messages.error(request, "Username/Password invalid", extra_tags='login')
-    return redirect(reverse('doops:user-settings'))
-    
+
+
 def submit_canvas(request, node_id):
     if request.method == 'POST':
-        if 'id' in request.session:
-            poster = User.objects.get(id=request.session['id'])
+        logged_user = get_logged_user(request)
+        if logged_user:
+            poster = logged_user
         else:
             poster = None
         parent = None
@@ -165,76 +219,135 @@ def submit_canvas(request, node_id):
             parent = parent
         )
 
-        with open('{0}canvas{1}.png'.format(settings.MEDIA_ROOT, new_canvas.id), 'wb+') as f:
+        filename = '{0}canvas{1}.png'.format(settings.MEDIA_ROOT, new_canvas.id)
+        with open(filename, 'wb+') as f:
             f.write(base64.b64decode(arr.split(',')[1]))
             new_canvas.image = 'canvas{0}.png'.format(new_canvas.id)
             new_canvas.save()
-            
-            return redirect(reverse('doops:canvas-by-id', args=[new_canvas.id]))
+        
+        Notification.objects.send_noti_for_new_canvas(new_canvas)
+        
+        return redirect(
+            reverse(
+                'doops:view-canvas',
+                args=[new_canvas.id]
+            )
+        )
         
     return redirect('/')
 
 def random_process(request):
     canvas_list = CanvasNode.objects.all()
     rand_index = randint(0,len(canvas_list) - 1)
-    return redirect(reverse('doops:canvas-by-id', args=[canvas_list[rand_index].id]))
+    return redirect(
+        reverse(
+            'doops:view-canvas',
+            args=[canvas_list[rand_index].id]
+        )
+    )
 
-
+# Require logged in
 def watch_process(request, node_id):
-    if 'id' in request.session:
+    logged_user = get_logged_user(request)
+    if logged_user:
         canvas_list = CanvasNode.objects.filter(id=int(node_id))
         if canvas_list:
             canvas = canvas_list[0]
-            this_user = User.objects.get(id=request.session['id'])
-            canvas.watched_users.add(this_user)
+            canvas.watched_users.add(logged_user)
 
             change_list = []
             walker = canvas
             while  walker != None:
-                change_list.append({'id': walker.id, 'total_watch_num': walker.total_watches()})
+                change_list.append({
+                    'id': walker.id,
+                    'total_watch_num': walker.total_watches()
+                    })
                 walker = walker.parent
             response = {
                 'target_watch': canvas.watched_users.all().count(),
                 'change_list': change_list,
-                'user_watch': this_user.watched_canvases.all().count()
+                'user_watch': logged_user.watched_canvases.all().count()
             }
             return JsonResponse(response)
     return redirect('/')
 
-def get_relatives(request, node_id):
-    canvas_list = CanvasNode.objects.get_canvas_list(
-        mode=request.GET['mode'], 
-        node_id=int(node_id), 
-        sort=request.GET['sort'])
-    
-    return render(request, 'doops/relatives_list.html', {'relatives_list': canvas_list})
-    return redirect('/')
+def report_process(request, node_id=0):
+    if node_id:
+        duplicates = Report.objects.filter(reported_canvas__id=int(node_id))
+        if not duplicates:
+            canvas_list = CanvasNode.objects.filter(id = node_id)
+            if canvas_list:
+                Report.objects.create(reported_canvas=canvas_list[0])
+                return HttpResponse("success")
+    return HttpResponse("fail")
 
+def clear_report(request, report_id):
+    logged_user = get_logged_user(request)
+    if logged_user and logged_user.is_admin():
+        reports = Report.objects.filter(id = int(report_id))
+        if reports:
+            reports[0].delete()
+    return redirect(request.META.get('HTTP_REFERER'))
+
+
+# Require logged in
 def delete_canvas(request, node_id):
-    if 'id' in request.session:
+    deleter = get_logged_user(request)
+    if deleter:
         canvas_list = CanvasNode.objects.filter(id=int(node_id))
-        deleter = User.objects.get(id=request.session['id'])
-        if canvas_list and (canvas_list[0].poster.id == deleter.id or deleter.is_admin()):
-            children_list = canvas_list[0].children.all()
-            for child in children_list:
-                child.parent = canvas_list[0].parent
-                child.save()
-            canvas_list[0].delete()
+        if canvas_list:
+            this_canvas = canvas_list[0]
+            regular_user_authorized = (
+                this_canvas.poster != None 
+                and this.poster.id == deleter.id
+                )
+
+            if regular_user_authorized or deleter.is_admin():
+                children_list = this_canvas.children.all()
+                for child in children_list:
+                    child.parent = this_canvas.parent
+                    child.save()
+
+                this_canvas.delete()
     return redirect('/')
 
 def get_notifications(request):
+    logged_user = get_logged_user(request)
+    if not logged_user:
+        return JsonResponse({'success': False, "error": 'User not logged in'})
+    
+    noti_list = (Notification.objects
+        .filter(
+        notified_user__id = logged_user.id
+        )
+        .order_by('-id'))
+    return render(request, 'doops/notification_list.html', {'noti_list': noti_list})
+
+def clear_notification(request, noti_id):
+    logged_user = get_logged_user(request)
+    if not logged_user:
+        return JsonResponse({'success': False, "error": 'User not logged in'})
+
+    noti_list = Notification.objects.filter(id=int(noti_id))
+    if noti_list and noti_list[0].notified_user.id == logged_user.id:
+        noti_list[0].delete()
+    return JsonResponse({
+        'success': True,
+        'new_noti_count': (noti_list.count() - 1)
+        })
+    
+
+
+# Utility function
+def get_logged_user(request):
+    """
+    check if there is an ID in session, and if the user
+    with that ID still exists. If true, return the user
+    """
     if 'id' in request.session:
-        noti_list = Notification.objects.filter(notified_user__id = request.session['id']).order_by('-id')
-        return JsonResponse({'noti_list': list(noti_list.values())})
-    return redirect('/')
+        user_list = User.objects.filter(id=request.session['id'])
+        if user_list:
+            return user_list[0]
+    return False
 
-@csrf_exempt
-def clear_notification(request):
-    user_id = int(request.POST['user_id'])
-    noti_id = int(request.POST['noti_id'])
-    if user_id == request.session['id']:
-        noti_list = Notification.objects.filter(id=noti_id)
-        if noti_list and noti_list[0].notified_user.id == user_id:
-            noti_list[0].delete()
-    return HttpResponse("")
-
+    

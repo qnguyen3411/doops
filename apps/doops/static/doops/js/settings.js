@@ -13,12 +13,11 @@ $( document ).ready(function() {
         $(this).addClass('selected').removeClass('text-default');
 
         href = $(this).attr('href');
-        $('form').hide()
-        $(href).show()
+        $('form').addClass('d-none')
+        $(href).removeClass('d-none')
         console.log(href)
-        
+        return false;
     });
-    $('form').hide();
     $('#update_info').show();
     
     // $('#searchbox').hide()

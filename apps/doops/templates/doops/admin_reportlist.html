@@ -1,0 +1,20 @@
+<table>
+<tr>
+    <th>ID</th>
+    <th>canvas ID</th>
+    <th>canvas url</th>
+
+    <th>Reported on</th>
+    <th>1</th>
+
+</tr>
+{% for report in reports %}
+<tr>
+    <td>{{report.id}}</td>
+    <td><a href="{% url 'doops:view-canvas' report.reported_canvas.id %}">{{report.reported_canvas.id}}</a></td>
+    <td>{{report.reported_canvas.image.url}}</td>
+    <td>{{report.created_at.date}}</td>
+    <td>Delete report</td>
+</tr>
+{% endfor %}
+</table>

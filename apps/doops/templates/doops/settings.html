@@ -5,6 +5,7 @@
     {% block static %}
     <link rel="stylesheet" media="screen" href="{% static "doops/css/dashboard.css" %}" />
     <link rel="stylesheet" media="screen" href="{% static "doops/css/color.css" %}" />
+    <link rel="stylesheet" media="screen" href="{% static "doops/css/topnav.css" %}" />
     <script src="{% static "doops/js/settings.js" %}"></script>
     <script src="{% static "doops/js/topnav.js" %}"></script>
     {% endblock %}
@@ -35,7 +36,7 @@
                     <a class="text-default" href="#change_pw">Change password</a> |
                     <a class="text-default" href="#delete">Delete account</a>
                 </p>
-                <form id="update_info" action="/update_process" method='post' class = "col-9 text-left small form-signin mt-3 ml-2">
+                <form id="update_info" action="{% url 'doops:update-user' self.id %}" method='post' class = "col-5 text-left small form-signin mt-3 ml-2">
                     {% csrf_token %}
                     {% if messages %}
                     {% for message in messages %}
@@ -47,10 +48,13 @@
                     <input type="text" class="form-control" name="username" value="{{self.username}}">
                     </div>
                     
-                    <input class="font-weight-bold bg-neutral text-neutral form-control my-2" type="submit" value="update">
+                    <input class="font-weight-bold border-0 bg-neutral text-neutral form-control my-2" type="submit" value="update">
                 </form>
 
-                <form id="change_pw" action="/update_process" method='post' class = "col-9 text-left small form-signin mt-3 ml-2">
+                <form id="change_pw"
+                action="{% url 'doops:update-user' self.id %}"
+                method='post'
+                class = "col-5 text-left small form-signin mt-3 ml-2 d-none">
                     {% csrf_token %}
                     {% if messages %}
                     {% for message in messages %}
@@ -70,10 +74,10 @@
                     <input type="password" name="confirm" class="form-control" >
                     </div>
                     
-                    <input class="font-weight-bold bg-neutral text-neutral form-control my-2" type="submit" value="update password">
+                    <input class="font-weight-bold border-0 bg-neutral text-neutral form-control my-2" type="submit" value="update password">
                 </form>
 
-                <form id="delete" action="register_process" method='post' class = "col-9 text-left small form-signin mt-3 ml-2">
+                <form id="delete" action="{% url 'doops:delete-user' self.id %}" method='post' class = "col-5 text-left small form-signin mt-3 ml-2 d-none">
                     {% csrf_token %}
                     {% if messages %}
                     {% for message in messages %}
@@ -81,11 +85,11 @@
                     {% endfor %}
                     {% endif %}
                     <div class="form-group">
-                    <label for="email" >Type in password to delete:</label>
-                    <input type="email" name="email" class="form-control" >
+                    <label for="password" >Type in password to delete:</label>
+                    <input type="password" name="password" class="form-control" >
                     </div>
                     
-                    <input class="font-weight-bold bg-neutral text-neutral form-control my-2" type="submit" value="Delete account">
+                    <input class="font-weight-bold bg-neutral border-0 text-neutral form-control my-2" type="submit" value="Delete account">
                 </form>
             </div>
             {% endblock %}

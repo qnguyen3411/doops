@@ -18,12 +18,18 @@ class UserManager(models.Manager):
             cleanData['confirm'] = postData['confirm'].strip()
         return cleanData
 
-    def validate_name(self, postData, min_length=0, check_unique=True):
+    def validate_name(self, postData, min_length=0, max_length=20, check_unique=True):
         errors = []
-        if len(postData['username']) < min_length:
+        if (
+            len(postData['username']) < min_length
+            or len(postData['username']) > max_length):
             errors.append({
                 'tag':'username',
-                'message': 'username must be at least '+str(min_length)+' characters.'})
+                'message':
+                    ('username must be between {0} and {1} characters.'
+                    .format(min_length, max_length)
+                    )
+                })
         elif check_unique:
             user_list = User.objects.filter(username=postData['username'])
             if user_list:
@@ -81,6 +87,19 @@ class UserManager(models.Manager):
             return {'user': user}
         return {'errors' : errors}
 
+    def delete_user(self, this_user, as_admin=False, pw_validation={}):
+        valid = False;
+
+        if not as_admin:
+            if 'password' in pw_validation:
+                if bcrypt.checkpw(pw_validation['password'].encode(), this_user.password_hash.encode()):
+                    valid = True
+        if as_admin or valid:
+            return {'deleted_user': this_user.delete()}
+        return {'errors': [{'tag':'delete', 'message': "Delete unsuccessful"}]}
+
+
+
     
 class User(models.Model):
     username = models.CharField(max_length=255)
@@ -125,8 +144,28 @@ class User(models.Model):
 
 
 class CanvasNodeManager(models.Manager):
-    def get_canvas_list(self, mode='all', user_id=0, node_id=0, sort='new'):
+    def get_canvas_list(self, **kwargs):
+        # Default arguments
+        user_id = kwargs.pop('user_id', None)
+        node_id = kwargs.pop('node_id', None)
+
+        if user_id: 
+            user_id = int(user_id)
+            mode = kwargs.pop('mode', 'post')
+        elif node_id:
+            node_id = int(node_id)
+            mode = kwargs.pop('mode', 'self')
+        else:
+            mode = kwargs.pop('mode', 'all')
+
+        sort = kwargs.pop('sort', 'new')
+        
+        # Parse into strings
+        mode = "".join(mode)
+        sort = "".join(sort)
+
         canvas_list = CanvasNode.objects.all()
+
         if mode == 'root':
             canvas_list = CanvasNode.objects.filter(parent = None)
         
@@ -140,10 +179,12 @@ class CanvasNodeManager(models.Manager):
 
         elif node_id:
             nodes = canvas_list.filter(id = node_id)
-            if canvas_list:
+            if nodes:
                 node = nodes[0]
                 if mode == 'children':
                     canvas_list = node.children.all()
+                    print(canvas_list)
+
                 elif mode == 'parent':
                     if node.parent:
                         canvas_list = CanvasNode.objects.filter(id = node.parent.id)
@@ -166,14 +207,24 @@ class CanvasNodeManager(models.Manager):
             canvas_list = (canvas_list.annotate(
                 num_watchers = Count('watched_users'))
                 .order_by('-num_watchers'))
+        
         return canvas_list
 
 
 class CanvasNode(models.Model):
     image = models.ImageField(blank=True)
-    poster = models.ForeignKey(User, on_delete=models.SET_NULL, related_name="posted_canvases", blank=True, null=True)
+    poster = models.ForeignKey(
+                            User, 
+                            on_delete=models.SET_NULL,
+                            related_name="posted_canvases",
+                            blank=True,
+                            null=True)
     watched_users = models.ManyToManyField(User, related_name="watched_canvases")
-    parent = models.ForeignKey("self", related_name = "children",blank=True, null=True)
+    parent = models.ForeignKey(
+                            "self",
+                            related_name = "children",
+                            blank=True,
+                            null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -228,6 +279,24 @@ class CanvasNode(models.Model):
         else:
             return self.parent.children.exclude(id = self.id)
 
+
+class NotificationManager(models.Manager):
+    def send_noti_for_new_canvas(self, new_canvas):
+        if new_canvas.parent.poster:
+            Notification.objects.create(
+                notified_user = new_canvas.parent.poster,
+                new_canvas = new_canvas,
+                user_status = "P"
+            )
+        for watcher in new_canvas.parent.watched_users.all():
+            Notification.objects.create(
+                notified_user = watcher,
+                new_canvas = new_canvas,
+                user_status = "P"
+            )
+        return self;
+
+
 class Notification(models.Model):
     POSTER = 'P'
     WATCHER = 'W'
@@ -241,5 +310,26 @@ class Notification(models.Model):
         max_length=1,
         choices= USER_STATUS_CHOICES,
         default=POSTER)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    objects = NotificationManager()
+
+class ReportManager(models.Manager):
+    def validate_report(self, postData):
+        if 'reported_canvas_id' in postData:
+            reported_canvas_id = int(postData['reported_canvas_id'])
+            dupes_list = Report.objects.filter(
+                reported_canvas__id=reported_canvas_id
+            )
+            if dupes_list:
+                return False;
+        return True;
+
+
+class Report(models.Model):
+    description = models.TextField(blank=True, null=True)
+    reported_canvas = models.OneToOneField(CanvasNode, blank=True, null=True)
+    reporter = models.OneToOneField(User, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

@@ -1,5 +1,5 @@
 $( document ).ready(function() {
-    
+    var modal = $('#preview-modal').get(0)
     $('#dashboard_window').on('click','.watch-button',function(){
         var canvas_id = $(this).attr('canvasID')
         $(this).addClass('text-lightgreen')
@@ -12,11 +12,15 @@ $( document ).ready(function() {
                 var watch_selector = '#canvas-'+ canvas_id + " .watches" ;
                 var total_watch_selector = '#canvas-'+ canvas_id + " .total-watches" ;
 
-                $(''+watch_selector).html(resp['target_watch'].toString())
+                $(''+watch_selector).html(resp['target_watch'].toString()+ " watches")
                 $('#self-numwatch').html(resp['user_watch'].toString() + " Watches")
+
                 for(var i = 0; i < resp['change_list'].length; i++){
                     total_watch_selector = '#canvas-'+ resp['change_list'][i]['id'] + " .total-watches"
-                    $(''+total_watch_selector).html(resp['change_list'][i]['total_watch_num'].toString())
+                    $(''+total_watch_selector).html(
+                        "("+
+                        resp['change_list'][i]['total_watch_num'].toString()
+                        +" total)")
                 }
             }
         })//end ajax
@@ -39,7 +43,34 @@ $( document ).ready(function() {
     })
     .on('mouseleave', '.preview_link', function(e){
         $('#preview-box').hide()
-    }) //end
+    })
+    .on('click', '.preview_link, .main-img', function(){
+        $(modal).show()
+        var modal_img = $('.modal-content img').get(0)
+        var modal_view_link = $('.modal-content .view-link').get(0)
+        var modal_draw_link = $('.modal-content .draw-link').get(0)
+        $(modal_img).attr(
+            'src',
+            $(this).attr('imgpreview')
+        )
+        $(modal_view_link).attr(
+            'href',
+            $(this).attr('viewlink')
+        )
+        $(modal_draw_link).attr(
+            'href',
+            $(this).attr('drawlink')
+        )
+        return false;
+    })
+     //end
+    $('.modal-content').hover(
+    function(){
+        $('.img-links').show()
+    }, function(){
+        $('.img-links').hide()
+
+    })
 
     $('#dashboard_window').on('change', '.relations-settings',function(){
         relatives_list = $(this).children('.relatives-list').get(0)
@@ -128,6 +159,26 @@ $( document ).ready(function() {
         for( var i = 0 ; i < liArr.length; i++){
             pos = i % numCols
             $(colArr[pos]).append(liArr[i])
+        }
+    }
+    
+
+    $('#dashboard_window').on('click', '.report-button',function(){
+        $.ajax({
+            url: $(this).attr('href'),
+            method: 'GET',
+            data: {},
+            success: function(resp){
+                console.log(resp)
+            }
+        })
+        return false;
+    })
+
+
+    window.onclick = function(e) {
+        if (e.target == modal) {
+            $(modal).hide();
         }
     }
 

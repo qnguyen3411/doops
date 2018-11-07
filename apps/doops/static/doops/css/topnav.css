@@ -30,6 +30,6 @@
 
 #notifications{
     position: absolute; top:0px; left:0px;
-    z-index: 5;
+    z-index: 7;
     width: 350px;
 }

@@ -1,0 +1,25 @@
+    <input type="search" class="col-8 ml-2 form-control" placeholder="Search user">
+        <table>
+        <tr>
+            <th>ID</th>
+            <th>username</th>
+            <th>Posted</th>
+            <th>Watched</th>
+            <th>Joined</th>
+            <th>2</th>
+            <th>3</th>
+        </tr>
+        {% for user in users %}
+        {% if user.id != request.session.id %}
+        <tr>
+            <td>{{user.id}}</td>
+            <td><a href="{% url 'doops:user-canvases' user.id %}">{{user.username}}</a></td>
+            <td>{{user.posted_canvases.count}}</td>
+            <td>{{user.watched_canvases.count}}</td>
+            <td>{{user.created_at.date}}</td>
+            <td><a href="{% url 'doops:delete-user' user.id%}">Delete</a></td>
+            <td><a href="{% url 'doops:update-user' user.id%}">Update</a></td>
+        </tr>
+        {% endif %}
+        {% endfor %}
+        </table>

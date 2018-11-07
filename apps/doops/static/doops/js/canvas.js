@@ -1,4 +1,3 @@
-console.log("AAAA")
 $( document ).ready(function() {
 
     var canvas = $('#botCanvas').get(0);
@@ -91,7 +90,7 @@ $( document ).ready(function() {
         });
         
     function draw(dot=false) {
-        
+
         ctx.beginPath();
         if (dot){
             ctx.arc(currX, currY,
@@ -188,10 +187,8 @@ $( document ).ready(function() {
     })
 
     $('.tool.clear').click(function(){
-        ctx.fillStyle = "white";
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        ovl_ctx.fillStyle = "white";
-        ovl_ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(start_img, 0, 0, canvas.width, canvas.height);
+        ovl_ctx.drawImage(start_img, 0, 0, canvas.width, canvas.height);
     })
 
     //helper functions
@@ -209,7 +206,11 @@ $( document ).ready(function() {
             color = "" + mode + "(" + val1 + "," + val2 + "%," + val3 + "%)"
             //update sliders
             var rgbBox = $('#rgb').get(0);
+            var hslBox = $('#hsl').get(0);
+
+            updateSliders(hslBox, [val1, val2, val3]);
             updateSliders(rgbBox, hslToRgb(val1, val2, val3));
+            
         }
         $('#curr-color').css('background-color', color);
     }

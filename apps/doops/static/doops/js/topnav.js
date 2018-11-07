@@ -7,19 +7,20 @@ $( document ).ready(function() {
     })
 
     $('#notifications').on('click', 'li', function(){
-        self_id = $(this).attr('selfID')
-        noti_id = $(this).attr('notiID')
+        clear_url = $(this).attr('clearurl')
+        
         $.ajax({
-            method: "POST",
-            url: "/clear_notification",
-            data: {
-                user_id: self_id,
-                noti_id: noti_id,
-            },
+            method: "GET",
+            url: clear_url,
+            data: {},
             success: function(resp){
                 getNotifications()
+                new_noti_count = resp['new_noti_count']
+                console.log(new_noti_count)
+                $('.notification-button').html("" + new_noti_count + " Notifications")
             }
         })
+
         $(this).remove()
     })
 
@@ -32,22 +33,12 @@ $( document ).ready(function() {
             url: "/get_notifications",
             data:{},
             success: function(resp){
-                noti_list = resp['noti_list']
-                $('.notification-button').text("" + noti_list.length + " Notifications")
-                if (noti_list.length == 0){
-                    no_noti = $('<div></div').text("No notifications here!")
-                    .addClass("bg-dark-green text-neutral small px-2")
-                    $('#notifications ul').append(no_noti)
-                    
-                }else{
-                    for(i = 0; i < noti_list.length; i++){
-                        $('#notifications ul').append(formatNotiItem(noti_list[i]))
-                    }
+                $('#notifications ul').html(resp)
+                console.log(resp)
                 }
-            }
-            
-        })
-    }
+            })
+        }
+    
     
     function formatNotiItem(noti_item){
         list_el = $('<li></li>').attr('selfID',noti_item['notified_user_id'] ).attr('notiID',noti_item['id'] )
@@ -73,8 +64,9 @@ $( document ).ready(function() {
     })
     
     $('.login-button, .register-button').click(function(e){
-        $('#mini-logreg').css('top', e.clientY + 10 + $(window).scrollTop())
-        .css('left', e.clientX + $(window).scrollLeft())
+        console.log("hey")
+        $('#mini-logreg').css('top', e.clientY + 10)
+        .css('left', e.clientX )
         .empty()
         .toggle()
         if($(this).hasClass('login-button')){

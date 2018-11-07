@@ -1,0 +1,25 @@
+{% for notification in noti_list %}
+<li clearurl="{% url 'doops:clear-notification' notification.id %}" 
+        canvasurl="{% url 'doops:view-canvas' notification.new_canvas.id %}"
+        class="notification list-group-item small bg-dark-green p-0 d-flex">
+    <a class="text-disabled d-block col-11 notification-go p-0"
+        href="{% url 'doops:view-canvas' notification.new_canvas.id %}">
+        <div class="col-12 p-1">
+            {% if notification.user_status == "P" %}
+            Somebody branched from your drawing!
+            {% else %}
+            Somebody branched on a node you watch!
+            {% endif %}
+            <i class="fas fa-arrow-right"></i>
+            
+        </div>
+    </a>
+    <div class="notification-close col-1 py-1 text-default">
+        <i class="fas fa-times"></i>
+    </div>
+</li>
+{% empty %}
+<div class="bg-dark-green text-neutral small px-2">
+    No notifications
+</div>
+{% endfor %}
